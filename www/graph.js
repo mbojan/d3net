@@ -1,29 +1,23 @@
-var networkOutputBinding = new Shiny.OutputBinding();
 
+var networkOutputBinding = new Shiny.OutputBinding();
   $.extend(networkOutputBinding, {
-    
     find: function(scope) {
       return $(scope).find('.shiny-network-output');
     },
     
     renderValue: function(el, data) {
+      var maxVertexProperty = 0.0;
+      var maxEdgeProperty = 0.0;
       //format nodes object
       var nodes = new Array();
       // connections between vertices
       var edges = data.links;
-      //if (data == null) console.log("Reading data failed.");
-      //console.log("Data length is:" + data.names.length);
+      
       for (var i = 0; i < data.names.length; i++)
       {
-        var counter = 0;
-        for (var k = 0; k < edges.length; k++)
-          {
-              if (edges[k].source == i || edges[k].target == i)
-                counter++;
-          }
-        //console.log("Data name of: " + i + " - " + data.names[i]);
-        nodes.push({"name": data.names[i], "connCount" : counter});
-        //console.log("Idx: " + i + "\tName: " + data.names[i] + "\tConnCount: " + counter );
+        nodes.push({"name": data.names[i], "property" : data.linksdata[i]});
+        maxVertexProperty = (Number(data.linksdata[i]) > maxVertexProperty) ? Number(data.linksdata[i]) : maxVertexProperty;
+        //console.log("Idx: " + i + "\tName: " + data.names[i] + "\tConnCount: " + data.linksdata[i] + "\tmax: " + maxVertexProperty);
       }
 
       var width = 800;
@@ -56,7 +50,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .attr("class", "link")
           .style("stroke", "#6E6E6E")
           .style("stroke-opacity", "0.5")
-          .style("stroke-width", function(d) { return d.weight; });
+          .style("stroke-width", function(d) { return d.property; });
 
       var vertexes = svg.selectAll("g")
           .data(nodes);
@@ -68,19 +62,17 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var circle = g.append("circle")
           .attr("class", "circle")
-          .attr("r", function(d) { return (Math.E)^(2*d.connCount); } )
+          .attr("r", function(d) { return Math.max(5,30*(d.property/maxVertexProperty)); } )
           .attr("fill", "#04B486")
-          //.attr("fill-opacity", "0.5")
           .style("stroke", "#fff")
           .style("stroke-width", "1px")
           .call(force.drag); 
 
       var label = g.append("text")
-          .text(function(d) { return d.name; })
+          .text(function(d) { return d.name + " \nValue: " + d.property; })
           .attr("class", "label")
-          //.style("color", "#6E6E6E")
-          .style("font-size", function(d) { return Math.max(8, 2 * d.connCount) + "px"; });
-      //    .style("display", "none");
+          .style("font-size", function(d) { return Math.max(10,30*(d.property/maxVertexProperty)) + "px"; })
+          .style("display", "none");
 
 
       force.on("tick", function() {
@@ -92,17 +84,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
             g.attr("transform", function(d) { return 'translate(' + [d.x, d.y] + ')'; })
         });
 
-
-      /* hide text, and unhide it + highlight circle on mouseover
       $(".circle").mouseover(function(){
-        $(this).attr("fill", "#B1DCFE");
         $(this).parent(".graph-node").children(".label").css("display", "inline");
       });
 
       $(".circle").mouseout(function(){
-        $(this).attr("fill", "steelblue");
         $(this).parent(".graph-node").children(".label").css("display", "none");
-      });*/
+      });
     }
 
   });

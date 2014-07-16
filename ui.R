@@ -10,13 +10,17 @@ shinyUI(pageWithSidebar(
     h3("Sample data:"),
     h4("igraphdata-karate"),
     helpText("Network visualization in R"),
-    # data input
-    # TO DO
-    fileInput("input", label = h3("Upload network data")),
     # output format
-    selectInput("outputFormat", label = h3("Select output format"), 
+    selectInput("outputFormat", 
+                label = h3("Select output format"), 
                 choices = list("Interactive d3.js" = 1, "R rendered" = 2), 
                 selected = 1),
+    selectInput("vertex", 
+                label = h3("Vertices reflect"), 
+                choices = list("Degree" = "degree", "Betweenness" = "betweenness", "Closeness" = "closeness")),
+    selectInput("edge",
+                label = h3("Edges reflect"),
+                choices = list("Weight" = "weight", "Betweenness" = "betweenness")),
    helpText("Work in progress")
   ),
   
