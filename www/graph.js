@@ -26,7 +26,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var force = d3.layout.force()
         .nodes(nodes)
         .links(edges)
-        .charge(-100)
+        .charge(-250)
         .linkDistance(200)
         .size([width, height])
         .start();
