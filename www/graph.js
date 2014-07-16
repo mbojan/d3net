@@ -23,7 +23,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
           }
         //console.log("Data name of: " + i + " - " + data.names[i]);
         nodes.push({"name": data.names[i], "connCount" : counter});
-        console.log("Idx: " + i + "\tName: " + data.names[i] + "\tConnCount: " + counter );
+        //console.log("Idx: " + i + "\tName: " + data.names[i] + "\tConnCount: " + counter );
       }
 
       var width = 800;
@@ -68,7 +68,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var circle = g.append("circle")
           .attr("class", "circle")
-          .attr("r", function(d) { return 5*(Math.E)^(d.connCount); } )
+          .attr("r", function(d) { return (Math.E)^(2*d.connCount); } )
           .attr("fill", "#04B486")
           //.attr("fill-opacity", "0.5")
           .style("stroke", "#fff")

@@ -29,23 +29,24 @@ shinyServer(function(input, output) {
   )
   
   output$mainnet <- reactive(function(){
-    lista <- get.edgelist(karate)
-    connections = matrix(nrow = nrow(lista), ncol = ncol(lista))
+    nodes <- rownames(get.adjacency(karate))
+    connections <- get.edgelist(karate)
+    connectionsIdx <- matrix(nrow = nrow(lista), ncol = ncol(lista))
     
-    for (i in 1 : nrow(end$links))
+    for (i in 1 : nrow(lista))
     {
       # replace names with indexex [required by d3.js]
-      sourceIdx <- which(end$names == end$links[i,1])
-      destIdx <- which(end$names == end$links[i,2])
+      sourceIdx <- which(nodes == connections[i,1])
+      destIdx <- which(nodes == connections[i,2])
       # decrement as javascript counts from 0, not 1
-      connections[i,1] <- sourceIdx - 1
-      connections[i,2] <- destIdx - 1
+      connectionsIdx[i,1] <- sourceIdx - 1
+      connectionsIdx[i,2] <- destIdx - 1
     }
     
-    connections <- cbind(connections, E(karate)$weight)
-    colnames(connections) <- c("source","target", "weight")
+    connectionsIdx <- cbind(connectionsIdx, E(karate)$weight)
+    colnames(connectionsIdx) <- c("source","target", "weight")
     
-    graphData <- list(names=rownames(get.adjacency(karate)),links=connections)
+    graphData <- list(names=nodes,links=connectionsIdx)
     graphData
   })
 })
