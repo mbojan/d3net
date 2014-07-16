@@ -28,7 +28,7 @@ shinyServer(function(input, output) {
     }
   )
   
-  output$mainnet <- reactive(function(){
+  output$mainnet <- reactive({
     nodes <- rownames(get.adjacency(karate))
     connections <- get.edgelist(karate)
     connectionsIdx <- matrix(nrow = nrow(lista), ncol = ncol(lista))
