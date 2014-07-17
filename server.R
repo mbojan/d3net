@@ -68,18 +68,25 @@ shinyServer(function(input, output) {
       connectionsIdx[i,2] <- destIdx - 1
     }
     # what edges should reflect
-    edgesData <- matrix(edgesReflection())
+    edges_property <- matrix(edgesReflection())
     # what vertices should reflect
-    nodesdata <- matrix(verticesReflection())
+    nodes_property <- matrix(verticesReflection())
+    
     # bind edges with edges property
-    connectionsIdx <- cbind(connectionsIdx, edgesData)
+    connectionsIdx <- cbind(connectionsIdx, edges_property)
     colnames(connectionsIdx) <- c("source","target", "property")
     
-    print(nodesdata)
-    graphData <- list(names = nodes, # vertices
+    # bind vertices with vertices property
+    nodes <- cbind(nodes, nodes_property)
+    colnames(nodes) <- c("vertex", "property")
+   
+    # full vertices data for tooltips
+    nodesdata <- cbind(degree(data), betweenness(data), closeness(data))
+    colnames(nodesdata) <- c("degree", "betweenness", "closeness")
+    
+    graphData <- list(vertices = nodes, # vertices
                       links = connectionsIdx, # edges
-                      edgesdata = edgesData, # edges thickness relation matrix
-                      linksdata = nodesdata) # vertices size relation matrix
+                      verticesTooltip = nodesdata) # data for vertices tooltip
     graphData
   })
 })
