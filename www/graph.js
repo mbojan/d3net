@@ -1,6 +1,7 @@
 
 var networkOutputBinding = new Shiny.OutputBinding();
- 
+       
+
   $.extend(networkOutputBinding, {
     find: function(scope) {
       return $(scope).find('.shiny-network-output');
@@ -84,8 +85,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .append("line")
           .attr("class", "link")
           .style("stroke", "#6E6E6E")
-          .style("stroke-opacity", function(d) { return Math.max(0.2,(d.property/maxEdgeProperty)); })
-          .style("stroke-width", function(d) { return Math.max(0.5,7*(d.property/maxEdgeProperty)); });
+          .style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.2,(d.property/maxEdgeProperty)) : 0.5; })
+          .style("stroke-width", function(d) { return (d.property) ? Math.max(0.8,7*(d.property/maxEdgeProperty)) : 2; });
       /** 
       Adding vertices on the graph
       g - vertex contsiting of:
@@ -102,13 +103,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var circle = g.append("circle")
           .attr("class", "circle")
-          .attr("r", function(d) { return Math.max(3,30*(d.property/maxVertexProperty)); } )
+          .attr("r", function(d) { return (d.property) ? Math.max(5,30*(d.property/maxVertexProperty)) : 7; } )
           //.attr("fill-opacity", function(d) { return 0.5 + 0.5*d.property/maxVertexProperty; })
           .attr("fill", "#04B486")
           .style("stroke", "#fff")
           .style("stroke-width", "1px");
 
-      var label = g.append("text")
+      /*var label = g.append("text")
          .text(function(d) { 
             obj = verticesTooltip[d.index];
             var properties = '';
@@ -117,8 +118,25 @@ var networkOutputBinding = new Shiny.OutputBinding();
             }
             return d.name + properties; }) 
           .attr("class", "label")
-          .style("font-size", function(d) { return Math.max(0.5,2*(d.property/maxVertexProperty)) + "em"; })
-          .style("display", "none");
+          .style("font-size", function(d) { return (d.property) ? Math.max(0.8,2*(d.property/maxVertexProperty)) + "em" : "0.8 em"; })
+          .style("display", "none");*/
+
+      /**
+      Creating tooltip
+      */
+      $('g').tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          obj = verticesTooltip[d.index];
+            var properties = '';
+            for (property in obj) {
+              properties += '\n' + property + '\t' + obj[property];
+            }
+            return d.name + "\n" + properties;
+        }
+      });
 
       force.on("tick", function() {
             link.attr("x1", function(d) { return d.source.x; })

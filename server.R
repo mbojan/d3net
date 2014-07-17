@@ -3,6 +3,7 @@ library(igraphdata)
 data <- karate
 
 shinyServer(function(input, output) {
+  #if (class(data) != 'igraph') stop()
   output$rplot <- renderPlot({
     #plot(data)
   })
@@ -36,10 +37,8 @@ shinyServer(function(input, output) {
       return(betweenness(data))
     if (input$vertex == "closeness")
       return(closeness(data))
-    #else NA
-    #to do - nothing chosen
     else
-      return(closeness(data))
+      return(rep(NA, length(degree(data))))
   })
   
   edgesReflection <- reactive({
@@ -47,18 +46,16 @@ shinyServer(function(input, output) {
       return(E(data)$weight)
     if (input$edge == "betweenness")
       return(edge.betweenness(data))
-    #else NA
-    #to do - nothing chosen
     else
-      return(E(data)$weight)
+      return(rep(NA, length(E(data)$weight)))
   })
   
   output$mainnet <- reactive({
     nodes <- rownames(get.adjacency(data))
     connections <- get.edgelist(data)
-    connectionsIdx <- matrix(nrow = nrow(lista), ncol = ncol(lista))
+    connectionsIdx <- matrix(nrow = nrow(connections), ncol = ncol(connections))
     
-    for (i in 1 : nrow(lista))
+    for (i in 1 : nrow(connections))
     {
       # replace names with indexex [required by d3.js]
       sourceIdx <- which(nodes == connections[i,1])

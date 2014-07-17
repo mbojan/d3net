@@ -17,15 +17,17 @@ shinyUI(pageWithSidebar(
                 selected = 1),
     selectInput("vertex", 
                 label = h3("Vertices reflect"), 
-                choices = list("Degree" = "degree", "Betweenness" = "betweenness", "Closeness" = "closeness")),
+                choices = list("None" = "none", "Degree" = "degree", "Betweenness" = "betweenness", "Closeness" = "closeness")),
     selectInput("edge",
                 label = h3("Edges reflect"),
-                choices = list("Weight" = "weight", "Betweenness" = "betweenness")),
+                choices = list("None" = "none","Weight" = "weight", "Betweenness" = "betweenness")),
    helpText("Work in progress")
   ),
   
   mainPanel(
+    tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "tipsy.css")),
     tags$head(tags$script(src="graph.js")),
+    tags$head(tags$script(src="jquery.tipsy.js")),
     tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
     conditionalPanel(
       condition="input.outputFormat == 1",
