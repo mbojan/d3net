@@ -44,7 +44,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .links(edges)
         .charge(-300)
         .linkDistance(150)
-        .gravity(0.15)
+        .linkStrength(0.8)
         .size([width, height])
         .start();
       
@@ -85,8 +85,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .append("line")
           .attr("class", "link")
           .style("stroke", "#6E6E6E")
-          .style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.2,(d.property/maxEdgeProperty)) : 0.5; })
-          .style("stroke-width", function(d) { return (d.property) ? Math.max(0.8,7*(d.property/maxEdgeProperty)) : 2; });
+          .style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.3,(d.property/maxEdgeProperty)) : 0.5; })
+          .style("stroke-width", function(d) { return (d.property) ? Math.max(3,10*(d.property/maxEdgeProperty)) : 3; });
       /** 
       Adding vertices on the graph
       g - vertex contsiting of:
@@ -103,38 +103,28 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var circle = g.append("circle")
           .attr("class", "circle")
-          .attr("r", function(d) { return (d.property) ? Math.max(5,30*(d.property/maxVertexProperty)) : 7; } )
+          .attr("r", function(d) { return (d.property) ? Math.max(5,30*(d.property/maxVertexProperty)) : 10; } )
           //.attr("fill-opacity", function(d) { return 0.5 + 0.5*d.property/maxVertexProperty; })
           .attr("fill", "#04B486")
           .style("stroke", "#fff")
           .style("stroke-width", "1px");
 
-      /*var label = g.append("text")
-         .text(function(d) { 
-            obj = verticesTooltip[d.index];
-            var properties = '';
-            for (property in obj) {
-              properties += '\n' + property + '\t' + obj[property];
-            }
-            return d.name + properties; }) 
-          .attr("class", "label")
-          .style("font-size", function(d) { return (d.property) ? Math.max(0.8,2*(d.property/maxVertexProperty)) + "em" : "0.8 em"; })
-          .style("display", "none");*/
-
       /**
       Creating tooltip
       */
-      $('g').tipsy({ 
+      $('circle').tipsy({ 
         gravity: 'w', 
         html: true, 
         title: function() {
           var d = this.__data__;
           obj = verticesTooltip[d.index];
             var properties = '';
+            properties += '<table>';
             for (property in obj) {
-              properties += '\n' + property + '\t' + obj[property];
+              properties += '<tr><td style="text-align: left">' + property.toUpperCase() + '</td><td style="text-align: right">' + obj[property] + '</td></tr>';
             }
-            return d.name + "\n" + properties;
+            properties += '</table';
+            return '<span class="tipsy-title">' + d.name + '</span><br/>' + "\n" + properties;
         }
       });
 
@@ -144,7 +134,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; });
             
-            g.attr("transform", function(d) { return 'translate(' + [d.x, d.y] + ')'; })
+            circle.attr("transform", function(d) { return 'translate(' + [d.x, d.y] + ')'; })
         });
 
       $(".circle").mouseover(function(){

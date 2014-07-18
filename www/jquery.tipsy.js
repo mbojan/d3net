@@ -1,27 +1,15 @@
-// tipsy, facebook style tooltips for jquery
-// version 1.0.0a
-// (c) 2008-2010 jason frame [jason@onehackoranother.com]
-// released under the MIT license
-
 (function($) {
     
     function maybeCall(thing, ctx) {
         return (typeof thing == 'function') ? (thing.call(ctx)) : thing;
-    };
-    
-    function isElementInDOM(ele) {
-      while (ele = ele.parentNode) {
-        if (ele == document) return true;
-      }
-      return false;
-    };
+    }
     
     function Tipsy(element, options) {
         this.$element = $(element);
         this.options = options;
         this.enabled = true;
         this.fixTitle();
-    };
+    }
     
     Tipsy.prototype = {
         show: function() {
@@ -34,9 +22,18 @@
                 $tip.remove().css({top: 0, left: 0, visibility: 'hidden', display: 'block'}).prependTo(document.body);
                 
                 var pos = $.extend({}, this.$element.offset(), {
-                    width: this.$element[0].offsetWidth,
-                    height: this.$element[0].offsetHeight
+                    width: this.$element[0].offsetWidth || 0,
+                    height: this.$element[0].offsetHeight || 0
                 });
+
+                if (typeof this.$element[0].nearestViewportElement == 'object') {
+                    // SVG
+                    var el = this.$element[0];
+                    var rect = el.getBoundingClientRect();
+                    pos.width = rect.width;
+                    pos.height = rect.height;
+                }
+
                 
                 var actualWidth = $tip[0].offsetWidth,
                     actualHeight = $tip[0].offsetHeight,
@@ -77,6 +74,23 @@
                 } else {
                     $tip.css({visibility: 'visible', opacity: this.options.opacity});
                 }
+
+                var t = this;
+                var set_hovered  = function(set_hover){
+                    return function(){
+                        t.$tip.stop();
+                        t.tipHovered = set_hover;
+                        if (!set_hover){
+                            if (t.options.delayOut === 0) {
+                                t.hide();
+                            } else {
+                                setTimeout(function() { 
+                                    if (t.hoverState == 'out') t.hide(); }, t.options.delayOut);
+                            }
+                        }
+                    };
+                };
+               $tip.hover(set_hovered(true), set_hovered(false));
             }
         },
         
@@ -90,17 +104,31 @@
         
         fixTitle: function() {
             var $e = this.$element;
+            
             if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
                 $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
+            }
+            if (typeof $e.context.nearestViewportElement == 'object'){                                                        
+                if ($e.children('title').length){
+                    $e.append('<original-title>' + ($e.children('title').text() || '') + '</original-title>')
+                        .children('title').remove();
+                }
             }
         },
         
         getTitle: function() {
+            
             var title, $e = this.$element, o = this.options;
             this.fixTitle();
-            var title, o = this.options;
+
             if (typeof o.title == 'string') {
-                title = $e.attr(o.title == 'title' ? 'original-title' : o.title);
+                var title_name = o.title == 'title' ? 'original-title' : o.title;
+                if ($e.children(title_name).length){
+                    title = $e.children(title_name).html();
+                } else{
+                    title = $e.attr(title_name);
+                }
+                
             } else if (typeof o.title == 'function') {
                 title = o.title.call($e[0]);
             }
@@ -111,7 +139,6 @@
         tip: function() {
             if (!this.$tip) {
                 this.$tip = $('<div class="tipsy"></div>').html('<div class="tipsy-arrow"></div><div class="tipsy-inner"></div>');
-                this.$tip.data('tipsy-pointee', this.$element[0]);
             }
             return this.$tip;
         },
@@ -140,6 +167,10 @@
         }
         
         options = $.extend({}, $.fn.tipsy.defaults, options);
+
+        if (options.hoverlock && options.delayOut === 0) {
+        options.delayOut = 100;
+    }
         
         function get(ele) {
             var tipsy = $.data(ele, 'tipsy');
@@ -153,29 +184,32 @@
         function enter() {
             var tipsy = get(this);
             tipsy.hoverState = 'in';
-            if (options.delayIn == 0) {
+            if (options.delayIn === 0) {
                 tipsy.show();
             } else {
                 tipsy.fixTitle();
                 setTimeout(function() { if (tipsy.hoverState == 'in') tipsy.show(); }, options.delayIn);
             }
-        };
+        }
         
         function leave() {
             var tipsy = get(this);
             tipsy.hoverState = 'out';
-            if (options.delayOut == 0) {
+            if (options.delayOut === 0) {
                 tipsy.hide();
             } else {
-                setTimeout(function() { if (tipsy.hoverState == 'out') tipsy.hide(); }, options.delayOut);
-            }
-        };
-        
-        if (!options.live) this.each(function() { get(this); });
-        
+                var to = function() {
+                    if (!tipsy.tipHovered || !options.hoverlock){
+                        if (tipsy.hoverState == 'out') tipsy.hide(); 
+                    }
+                };
+                setTimeout(to, options.delayOut);
+            }    
+        }
+
         if (options.trigger != 'manual') {
-            var binder   = options.live ? 'live' : 'bind',
-                eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
+            var binder = options.live ? 'live' : 'bind',
+                eventIn = options.trigger == 'hover' ? 'mouseenter' : 'focus',
                 eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
             this[binder](eventIn, enter)[binder](eventOut, leave);
         }
@@ -196,16 +230,8 @@
         offset: 0,
         opacity: 0.8,
         title: 'title',
-        trigger: 'hover'
-    };
-    
-    $.fn.tipsy.revalidate = function() {
-      $('.tipsy').each(function() {
-        var pointee = $.data(this, 'tipsy-pointee');
-        if (!pointee || !isElementInDOM(pointee)) {
-          $(this).remove();
-        }
-      });
+        trigger: 'hover',
+        hoverlock: false
     };
     
     // Overwrite this method to provide options on a per-element basis.
@@ -240,19 +266,18 @@
      *        component.
      */
      $.fn.tipsy.autoBounds = function(margin, prefer) {
-		return function() {
-			var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)},
-			    boundTop = $(document).scrollTop() + margin,
-			    boundLeft = $(document).scrollLeft() + margin,
-			    $this = $(this);
+        return function() {
+            var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)},
+                boundTop = $(document).scrollTop() + margin,
+                boundLeft = $(document).scrollLeft() + margin,
+                $this = $(this);
 
-			if ($this.offset().top < boundTop) dir.ns = 'n';
-			if ($this.offset().left < boundLeft) dir.ew = 'w';
-			if ($(window).width() + $(document).scrollLeft() - $this.offset().left < margin) dir.ew = 'e';
-			if ($(window).height() + $(document).scrollTop() - $this.offset().top < margin) dir.ns = 's';
+            if ($this.offset().top < boundTop) dir.ns = 'n';
+            if ($this.offset().left < boundLeft) dir.ew = 'w';
+            if ($(window).width() + $(document).scrollLeft() - $this.offset().left < margin) dir.ew = 'e';
+            if ($(window).height() + $(document).scrollTop() - $this.offset().top < margin) dir.ns = 's';
 
-			return dir.ns + (dir.ew ? dir.ew : '');
-		}
-	};
-    
+            return dir.ns + (dir.ew ? dir.ew : '');
+        };
+    };
 })(jQuery);
