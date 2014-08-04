@@ -1,8 +1,4 @@
-library(igraph)
-library(igraphdata)
-data(foodwebs)
-data <- foodwebs$Narragan
-
+data <- .d3net.dataset
 
 shinyServer(function(input, output) {
   if (class(data) != 'igraph') stop()
@@ -30,7 +26,7 @@ shinyServer(function(input, output) {
   output$tooltipAttr <- renderUI({
       selectInput("tooltipAttr",
                   label = "Tooltip information",
-                  choices = names(vertex.attributes(data)),
+                  choices = c("Degree", "Betweenness", "Closeness",names(vertex.attributes(data))),
                   selected = "None",
                   multiple = TRUE
                   )
@@ -145,10 +141,10 @@ shinyServer(function(input, output) {
    
     # full vertices data for tooltips
     attributes <- vertex.attributes(data)
-    attributes$closeness <- as.vector(closeness(data))
-    attributes$betweeness <- as.vector(betweenness(data))
+    attributes$Closeness <- as.vector(closeness(data))
+    attributes$Betweenness <- as.vector(betweenness(data))
     if (is.weighted(data))
-      attributes$weight <- as.vector((E(data)$weight))
+      attributes$Weight <- as.vector((E(data)$weight))
     
     # d3 graph properties
     d3properties <- matrix(c(input$charge,
@@ -162,7 +158,7 @@ shinyServer(function(input, output) {
                                 "vertexSizeMax", "directed")
     graphData <- list(vertices = nodes, # vertices
                       links = connectionsIdx, # edges
-                      tooltipInfo = input$tooltipAttr, # list of attributes' names for tooltip
+                      tooltipInfo = as.list(input$tooltipAttr), # list of attributes' names for tooltip
                       vertexRadius = input$vertexRadius, # attribute that vertex radius should reflect
                       vertexColor = input$vertexColor, # attribute that vertex color should reflect
                       verticesAttributes = attributes, # attributes data

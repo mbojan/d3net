@@ -42,10 +42,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
             colorsArray[value] = newColor;
           }
           
-          console.log(vertexColor + '\t' + i + '\t' + value);
         nodes.push({"name": vertices[i].vertex, "property" : vertices[i].property, "color" : colorsArray[value]});
       }
-      console.log(colorsArray)
       /**
       Maximum and minimum vertices values - for normalization
       */
@@ -166,16 +164,18 @@ var networkOutputBinding = new Shiny.OutputBinding();
             
             if (vertexColor != 'None' && vertexColor != null)             
               properties += '<span style="text-align: left; font-size: 5em; color: ' + d.color + '">' + '&#9679' + '</span><p><b>' + colorLegend + '</b></p>';
-            properties += '<table>';
 
             if (tooltipInfo != null)
             {
+              properties += '<table>';
+
               for (i = 0; i < tooltipInfo.length; i++)
               {
                 properties += '<tr><td style="text-align: left">' + tooltipInfo[i].toUpperCase() + '</td><td style="text-align: right">' + verticesAttributes[tooltipInfo[i]][d.index] + '</td></tr>';
               }
+              properties += '</table>';
             }
-            properties += '</table>';
+            
             return '<span class="tipsy-title">' + d.name + '</span><br/>' + "\n" + properties;
         }
       });
