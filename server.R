@@ -22,11 +22,20 @@ shinyServer(function(input, output) {
       numericChoices <- append(numericChoices, i)
     }
   }
+  output$edges <- renderUI({
+    if (is.weighted(data)) 
+      list <- c("None" = "none","Weight" = "weight", "Betweenness" = "betweenness")
+    else
+      list <- c("None" = "none","Betweenness" = "betweenness")
+    selectInput("edge",
+                label = "Edges reflect",
+                choices = list)
+  })
   
   output$tooltipAttr <- renderUI({
       selectInput("tooltipAttr",
                   label = "Tooltip information",
-                  choices = c("Degree", "Betweenness", "Closeness",names(vertex.attributes(data))),
+                  choices = c("Degree", "Betweenness", "Closeness", names(vertex.attributes(data))),
                   selected = "None",
                   multiple = TRUE
                   )
@@ -70,38 +79,11 @@ shinyServer(function(input, output) {
   
   edgesReflection <- reactive({
     if (input$edge == "weight")
-      {
-        if (is.weighted(data))
-          return(E(data)$weight)
-        else
-          return(rep(NA, ecount(data)))
-      }
+       return(E(data)$weight)
     if (input$edge == "betweenness")
       return(edge.betweenness(data))
     else
       return(rep(NA, ecount(data)))
-  })
-  
-  vertexColor <- reactive ({
-    if (!is.null(input$vertexColor) && input$vertexColor != "None")
-      return(vertex.attributes(data)[[paste(input$vertexColor)]])
-    else
-      return(rep(NA, vcount(data)))
-  })
-  
-  vertexRadius <- reactive ({
-    if (is.null(input$vertexRadius))
-      return(rep(NA, vcount(data)))
-    if (!is.null(vertex.attributes(data)[[paste(input$vertexRadius)]]))
-      return(vertex.attributes(data)[[paste(input$vertexRadius)]])
-    if (input$vertexRadius == "Closeness")
-      return(closeness(data))
-    if (input$vertexRadius == "Degree")
-      return(degree(data))
-    if (input$vertexRadius == "Betweenness")
-      return(betweenness(data))
-    else
-      return(rep(NA, vcount(data)))
   })
   
   output$mainnet <- reactive({
@@ -109,7 +91,8 @@ shinyServer(function(input, output) {
       nodes <- seq(1, nrow(get.adjacency(data)))
     else 
       nodes <- rownames(get.adjacency(data))
-
+    
+    #colnames(nodes) <- c("vertex")
     connections <- get.edgelist(data)
     connectionsIdx <- matrix(nrow = nrow(connections), ncol = ncol(connections))
 
@@ -126,25 +109,17 @@ shinyServer(function(input, output) {
     
     # what edges should reflect
     edges_property <- matrix(edgesReflection())
-    # what nodes radius should reflect
-    nodes_property <- matrix(vertexRadius())
-    # what nodes color should reflect
-    nodes_color <- matrix(vertexColor())
     
     # bind edges with edges property
     connectionsIdx <- cbind(connectionsIdx, edges_property)
     colnames(connectionsIdx) <- c("source","target", "property")
     
-    # bind vertices with vertices property
-    nodes <- cbind(nodes, nodes_property, nodes_color)
-    colnames(nodes) <- c("vertex", "property", "color")
    
     # full vertices data for tooltips
     attributes <- vertex.attributes(data)
     attributes$Closeness <- as.vector(closeness(data))
     attributes$Betweenness <- as.vector(betweenness(data))
-    if (is.weighted(data))
-      attributes$Weight <- as.vector((E(data)$weight))
+    attributes$Degree <- as.vector(degree(data))
     
     # d3 graph properties
     d3properties <- matrix(c(input$charge,

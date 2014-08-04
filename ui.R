@@ -24,9 +24,7 @@ shinyUI(
                          label = "Select output format", 
                          choices = list("Interactive d3.js" = 1, "R rendered" = 2), 
                          selected = 1),
-             selectInput("edge",
-                         label = "Edges reflect",
-                         choices = list("None" = "none","Weight" = "weight", "Betweenness" = "betweenness")),
+             htmlOutput("edges"),
              htmlOutput("vertexColor"),
              htmlOutput("vertexRadius"),
              htmlOutput("tooltipAttr")

@@ -41,13 +41,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
             while (colorsArray.indexOf(newColor) != -1)
             colorsArray[value] = newColor;
           }
-          
-        nodes.push({"name": vertices[i].vertex, "property" : vertices[i].property, "color" : colorsArray[value]});
+        property = (vertexRadius != 'None' && vertexRadius != null) ? verticesAttributes[vertexRadius][i] : null;
+        nodes.push({"name": vertices[i], "property" : property, "color" : colorsArray[value]});
       }
       /**
       Maximum and minimum vertices values - for normalization
       */
-      maxVertexProperty = vertices.reduce(function(acc, vertex) { 
+      maxVertexProperty = nodes.reduce(function(acc, vertex) { 
         if (Number(vertex.property) > acc) 
           return Number(vertex.property); 
         else return acc}, 0);
@@ -160,10 +160,14 @@ var networkOutputBinding = new Shiny.OutputBinding();
         title: function() {
         var d = this.__data__;
             var properties = '';
-            var colorLegend = (vertices[d.index].color != null) ? vertices[d.index].color : 'NA';
+            //var colorLegend = (vertexColor != 'None' && vertexColor != null) ? 
+            //var colorLegend = (nodes[d.index].color != null) ? nodes[d.index].color : 'NA';
             
-            if (vertexColor != 'None' && vertexColor != null)             
+            if (vertexColor != 'None' && vertexColor != null)
+            {
+              colorLegend = (verticesAttributes[vertexColor][d.index] != null) ? verticesAttributes[vertexColor][d.index] : 'NA';
               properties += '<span style="text-align: left; font-size: 5em; color: ' + d.color + '">' + '&#9679' + '</span><p><b>' + colorLegend + '</b></p>';
+            }             
 
             if (tooltipInfo != null)
             {
