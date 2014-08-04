@@ -3,6 +3,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
        
 
   $.extend(networkOutputBinding, {
+
     find: function(scope) {
       return $(scope).find('.shiny-network-output');
     },
@@ -19,6 +20,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var edges = data.links;
       var vertices = data.vertices;
       var verticesTooltip = data.verticesTooltip;
+      var d3properties = data.d3;
 
       /**
       Preparation of data sent by R
@@ -27,10 +29,12 @@ var networkOutputBinding = new Shiny.OutputBinding();
       {
         nodes.push({"name": vertices[i].vertex, "property" : vertices[i].property});
       }
+
       maxVertexProperty = vertices.reduce(function(acc, vertex) { 
         if (Number(vertex.property) > acc) 
           return Number(vertex.property); 
         else return acc}, 0);
+
       maxEdgeProperty = edges.reduce(function(acc, edge) { 
         if (Number(edge.property) > acc) 
           return Number(edge.property); 
@@ -42,9 +46,9 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var force = d3.layout.force()
         .nodes(nodes)
         .links(edges)
-        .charge(-300)
-        .linkDistance(130)
-        .linkStrength(0.8)
+        .charge(d3properties[0].charge)
+        .linkDistance(d3properties[0].linkDistance)
+        .linkStrength(d3properties[0].linkStrength)
         .size([width, height])
         .start();
       
@@ -87,6 +91,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .style("stroke", "#6E6E6E")
           .style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.3,(d.property/maxEdgeProperty)) : 0.5; })
           .style("stroke-width", function(d) { return (d.property) ? Math.max(3,10*(d.property/maxEdgeProperty)) : 3; });
+
+      
       /** 
       Adding vertices on the graph
       g - vertex contsiting of:
@@ -99,49 +105,16 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var g = vertexes.enter()
           .append("g")
           .attr("class", "graph-node")
-          .on("click", fade(.1))
-          .on("mouseout", fadeOut())
           .call(force.drag);
 
       var circle = g.append("circle")
           .attr("class", "circle")
-          .attr("r", function(d) { return (d.property) ? Math.max(5,30*(d.property/maxVertexProperty)) : 10; } )
+          .attr("r", function(d) { return (d.property) ? 
+            Math.max(d3properties[0].vertexSizeMin, d3properties[0].vertexSizeMax*(d.property/maxVertexProperty)) : d3properties[0].vertexSizeMin; } )
           //.attr("fill-opacity", function(d) { return 0.5 + 0.5*d.property/maxVertexProperty; })
           .attr("fill", "#04B486")
           .style("stroke", "#fff")
           .style("stroke-width", "1px");
-
-      var linkedByIndex = {};
-      data.links.forEach(function(d) {
-          linkedByIndex[d.source.index + "," + d.target.index] = 1;
-      });
-
-      function isConnected(a, b) {
-        return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
-      }
-
-      function fade(opacity) {
-        return function(d) {
-              circle.style("stroke-opacity", function(o) {
-                  thisOpacity = isConnected(d, o) ? 1 : opacity;
-                  this.setAttribute('fill-opacity', thisOpacity);
-                  return thisOpacity;
-              });
-
-              link.style("stroke-opacity", function(o) {
-                  return o.source === d || o.target === d ? 1 : opacity;
-              });
-          };
-      }
-
-      function fadeOut() {
-        return function(d) {
-            circle.style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.3,(d.property/maxEdgeProperty)) : 0.5; })
-              .attr("fill-opacity", "1");
-
-            link.style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.3,(d.property/maxEdgeProperty)) : 0.5; });
-        };
-      }
 
       /**
       Creating tooltip

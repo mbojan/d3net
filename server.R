@@ -1,11 +1,53 @@
 library(igraph)
 library(igraphdata)
-data <- karate
+data(foodwebs)
+data <- foodwebs$Narragan
+
 
 shinyServer(function(input, output) {
-  #if (class(data) != 'igraph') stop()
+  if (class(data) != 'igraph') stop()
   output$rplot <- renderPlot({
-    #plot(data)
+    plot(data)
+  })
+  
+  characterChoices <- list()
+  numericChoices <- list()
+  
+  for (i in names(vertex.attributes(data)))
+  {
+    temp_col <- vertex.attributes(data)[[paste(i)]]
+    if (class(temp_col) == "character" || class(temp_col) == "logical")
+    {
+      # if this attribute is distinct to every vertex there's no point grouping it
+      characterChoices <- append(characterChoices, i)
+    }
+    if (class(temp_col) == "numeric" || class(temp_col) == "integer")
+    {
+      numericChoices <- append(numericChoices, i)
+    }
+  }
+  
+  output$tooltipAttr <- renderUI({
+      selectInput("tooltipAttr",
+                  label = "Tooltip information",
+                  choices = names(vertex.attributes(data)),
+                  selected = "None",
+                  multiple = TRUE
+                  )
+  })
+  
+  output$vertexColor <- renderUI({
+    selectInput("vertexColor", 
+                label = "Vertices color reflect", 
+                choices = c("None", characterChoices),
+                selected = "None")
+  })
+  
+  output$vertexRadius <- renderUI({
+    selectInput("vertexRadius", 
+                label = "Vertices radius reflect", 
+                choices = c("None", "Degree", "Betweenness", "Closeness", numericChoices),
+                selected = "None")
   })
   
   output$pngDownload <- downloadHandler(
@@ -30,60 +72,101 @@ shinyServer(function(input, output) {
     }
   )
   
-  verticesReflection <- reactive({
-    if (input$vertex == "degree")
-      return(degree(data))
-    if (input$vertex == "betweenness")
-      return(betweenness(data))
-    if (input$vertex == "closeness")
-      return(closeness(data))
-    else
-      return(rep(NA, length(degree(data))))
-  })
-  
   edgesReflection <- reactive({
     if (input$edge == "weight")
-      return(E(data)$weight)
+      {
+        if (is.weighted(data))
+          return(E(data)$weight)
+        else
+          return(rep(NA, ecount(data)))
+      }
     if (input$edge == "betweenness")
       return(edge.betweenness(data))
     else
-      return(rep(NA, length(E(data)$weight)))
+      return(rep(NA, ecount(data)))
+  })
+  
+  vertexColor <- reactive ({
+    if (!is.null(input$vertexColor) && input$vertexColor != "None")
+      return(vertex.attributes(data)[[paste(input$vertexColor)]])
+    else
+      return(rep(NA, vcount(data)))
+  })
+  
+  vertexRadius <- reactive ({
+    if (is.null(input$vertexRadius))
+      return(rep(NA, vcount(data)))
+    if (!is.null(vertex.attributes(data)[[paste(input$vertexRadius)]]))
+      return(vertex.attributes(data)[[paste(input$vertexRadius)]])
+    if (input$vertexRadius == "Closeness")
+      return(closeness(data))
+    if (input$vertexRadius == "Degree")
+      return(degree(data))
+    if (input$vertexRadius == "Betweenness")
+      return(betweenness(data))
+    else
+      return(rep(NA, vcount(data)))
   })
   
   output$mainnet <- reactive({
-    nodes <- rownames(get.adjacency(data))
+    if (is.null(rownames(get.adjacency(data))))
+      nodes <- seq(1, nrow(get.adjacency(data)))
+    else 
+      nodes <- rownames(get.adjacency(data))
+
     connections <- get.edgelist(data)
     connectionsIdx <- matrix(nrow = nrow(connections), ncol = ncol(connections))
-    
+
     for (i in 1 : nrow(connections))
     {
       # replace names with indexex [required by d3.js]
       sourceIdx <- which(nodes == connections[i,1])
       destIdx <- which(nodes == connections[i,2])
+      
       # decrement as javascript counts from 0, not 1
       connectionsIdx[i,1] <- sourceIdx - 1
       connectionsIdx[i,2] <- destIdx - 1
     }
+    
     # what edges should reflect
     edges_property <- matrix(edgesReflection())
-    # what vertices should reflect
-    nodes_property <- matrix(verticesReflection())
+    # what nodes radius should reflect
+    nodes_property <- matrix(vertexRadius())
+    # what nodes color should reflect
+    nodes_color <- matrix(vertexColor())
     
     # bind edges with edges property
     connectionsIdx <- cbind(connectionsIdx, edges_property)
     colnames(connectionsIdx) <- c("source","target", "property")
     
     # bind vertices with vertices property
-    nodes <- cbind(nodes, nodes_property)
-    colnames(nodes) <- c("vertex", "property")
+    nodes <- cbind(nodes, nodes_property, nodes_color)
+    colnames(nodes) <- c("vertex", "property", "color")
    
     # full vertices data for tooltips
-    nodesdata <- cbind(degree(data), betweenness(data), closeness(data))
-    colnames(nodesdata) <- c("degree", "betweenness", "closeness")
+    attributes <- vertex.attributes(data)
+    attributes$closeness <- as.vector(closeness(data))
+    attributes$betweeness <- as.vector(betweenness(data))
+    if (is.weighted(data))
+      attributes$weight <- as.vector((E(data)$weight))
     
+    # d3 graph properties
+    d3properties <- matrix(c(input$charge,
+                             input$linkDistance, 
+                             input$linkStrength,
+                             input$vertexSize[1],
+                             input$vertexSize[2],
+                             as.numeric(is.directed(data))), ncol = 6)
+    
+    colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
+                                "vertexSizeMax", "directed")
     graphData <- list(vertices = nodes, # vertices
                       links = connectionsIdx, # edges
-                      verticesTooltip = nodesdata) # data for vertices tooltip
+                      tooltipInfo = input$tooltipAttr, # list of attributes' names for tooltip
+                      vertexRadius = input$vertexRadius, # attribute that vertex radius should reflect
+                      vertexColor = input$vertexColor, # attribute that vertex color should reflect
+                      verticesAttributes = attributes, # attributes data
+                      d3 = d3properties)
     graphData
   })
 })
