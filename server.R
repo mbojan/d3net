@@ -6,6 +6,28 @@ shinyServer(function(input, output) {
     plot(data)
   })
   
+  output$pngDownload <- downloadHandler(
+    filename = function() {
+      paste('data-', Sys.Date(), '.png', sep='')
+    },
+    content = function(file) {
+      png(file)
+      plot(data)
+      dev.off()
+    }
+  )
+  
+  output$pdfDownload <- downloadHandler(
+    filename = function() {
+      paste('data-', Sys.Date(), '.pdf', sep='')
+    },
+    content = function(file) {
+      pdf(file)
+      plot(data)
+      dev.off()
+    }
+  )
+  
   characterChoices <- list()
   numericChoices <- list()
   
@@ -22,11 +44,13 @@ shinyServer(function(input, output) {
       numericChoices <- append(numericChoices, i)
     }
   }
-  output$edges <- renderUI({
+  
+  output$edge <- renderUI({
     if (is.weighted(data)) 
       list <- c("None" = "none","Weight" = "weight", "Betweenness" = "betweenness")
     else
       list <- c("None" = "none","Betweenness" = "betweenness")
+    
     selectInput("edge",
                 label = "Edges reflect",
                 choices = list)
@@ -55,35 +79,17 @@ shinyServer(function(input, output) {
                 selected = "None")
   })
   
-  output$pngDownload <- downloadHandler(
-    filename = function() {
-      paste('data-', Sys.Date(), '.png', sep='')
-    },
-    content = function(file) {
-      png(file)
-      plot(data)
-      dev.off()
-    }
-  )
-  
-  output$pdfDownload <- downloadHandler(
-    filename = function() {
-      paste('data-', Sys.Date(), '.pdf', sep='')
-    },
-    content = function(file) {
-      pdf(file)
-      plot(data)
-      dev.off()
-    }
-  )
-  
   edgesReflection <- reactive({
+    if (is.null(input$edge) || input$edge == "None")
+      return(rep(NA, ecount(data)))
+    
     if (input$edge == "weight")
-       return(E(data)$weight)
+      return(E(data)$weight)
+
     if (input$edge == "betweenness")
       return(edge.betweenness(data))
-    else
-      return(rep(NA, ecount(data)))
+    
+    return(rep(NA, ecount(data)))
   })
   
   output$mainnet <- reactive({
@@ -127,7 +133,7 @@ shinyServer(function(input, output) {
                              input$linkStrength,
                              input$vertexSize[1],
                              input$vertexSize[2],
-                             as.numeric(is.directed(data))), ncol = 6)
+                             as.numeric(igraph::is.directed(data))), ncol = 6)
     
     colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
                                 "vertexSizeMax", "directed")
