@@ -19,18 +19,53 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var nodes = new Array();
       var edges = data.links;
       var vertices = data.vertices;
-      var verticesTooltip = data.verticesTooltip;
       var d3properties = data.d3;
+      var tooltipInfo = data.tooltipInfo;
+      var verticesAttributes = data.verticesAttributes;
+      var vertexRadius = data.vertexRadius;
+      var vertexColor = data.vertexColor;
+      var graphType = data.graphType;
 
+      //console.log(verticesAttributes)
+      
+      if (graphType == 'networkDynamic')
+      {
+        edges = data.links;
+        for (var i = 0; i < edges.length; i++)
+        {
+          //console.log(i)
+          if ( d3properties[0].time < edges[i].onset || d3properties[0].time > edges[i].terminus)
+            {
+              edges.splice(i,1)
+            }
+        }
+      }
+      console.log(edges.length)
+      //console.log(edges)
       /**
       Preparation of data sent by R
       */
+      colorsArray = new Array();
       for (var i = 0; i < vertices.length; i++)
       {
-        nodes.push({"name": vertices[i].vertex, "property" : vertices[i].property});
+        value = (vertexColor != 'None' && vertexColor != null) ? verticesAttributes[vertexColor][i] : '';
+        if (!colorsArray[value]) 
+          {
+            var newColor;
+            do {
+              newColor = randomColor({luminosity: 'light'});
+            }
+            while (colorsArray.indexOf(newColor) != -1)
+            colorsArray[value] = newColor;
+          }
+        property = (vertexRadius != 'None' && vertexRadius != null) ? verticesAttributes[vertexRadius][i] : null;
+        nodes.push({"name": vertices[i], "property" : property, "color" : colorsArray[value]});
       }
 
-      maxVertexProperty = vertices.reduce(function(acc, vertex) { 
+      /**
+      Maximum and minimum vertices values - for normalization
+      */
+      maxVertexProperty = nodes.reduce(function(acc, vertex) { 
         if (Number(vertex.property) > acc) 
           return Number(vertex.property); 
         else return acc}, 0);
@@ -80,18 +115,35 @@ var networkOutputBinding = new Shiny.OutputBinding();
           graph.attr("height", Math.round(targetWidth / aspect));
       }).trigger("resize");
 
-      /**
-      Adding edges between vertices on the graph
-      */
-      var link = svg.selectAll("line.link")
+      var markerSize = 3;
+
+      svg.append("svg:defs").selectAll("marker")
+        .data(["end"])      // Different link/path types can be defined here
+      .enter().append("svg:marker")    // This section adds in the arrows
+        .attr("id", String)
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", function(d) { return 3*markerSize; })
+        .attr("markerWidth", markerSize)
+        .attr("markerHeight", markerSize)
+        .attr("orient", "auto")
+        .style("fill", "#6E6E6E")
+      .append("svg:path")
+        .attr("d", "M0,-5L10,0L0,5");
+
+      
+      // add the links and the arrows
+      var path = svg.selectAll("path")
           .data(edges)
-          .enter()
-          .append("line")
+        .enter().append("svg:path")
           .attr("class", "link")
           .style("stroke", "#6E6E6E")
           .style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.3,(d.property/maxEdgeProperty)) : 0.5; })
           .style("stroke-width", function(d) { return (d.property) ? Math.max(3,10*(d.property/maxEdgeProperty)) : 3; });
 
+      if (d3properties[0].directed)
+      {
+        svg.selectAll("path").attr("marker-end", "url(#end)")
+      }
       
       /** 
       Adding vertices on the graph
@@ -109,10 +161,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var circle = g.append("circle")
           .attr("class", "circle")
-          .attr("r", function(d) { return (d.property) ? 
+          .attr("r", function(d) { return (d.property && maxVertexProperty) ? 
             Math.max(d3properties[0].vertexSizeMin, d3properties[0].vertexSizeMax*(d.property/maxVertexProperty)) : d3properties[0].vertexSizeMin; } )
-          //.attr("fill-opacity", function(d) { return 0.5 + 0.5*d.property/maxVertexProperty; })
-          .attr("fill", "#04B486")
+          .attr("fill", function(d) {
+            return d.color;
+          })
           .style("stroke", "#fff")
           .style("stroke-width", "1px");
 
@@ -123,26 +176,68 @@ var networkOutputBinding = new Shiny.OutputBinding();
         gravity: 'w', 
         html: true, 
         title: function() {
-          var d = this.__data__;
-          obj = verticesTooltip[d.index];
+        var d = this.__data__;
             var properties = '';
-            properties += '<table>';
-            for (property in obj) {
-              properties += '<tr><td style="text-align: left">' + property.toUpperCase() + '</td><td style="text-align: right">' + obj[property] + '</td></tr>';
+            //var colorLegend = (vertexColor != 'None' && vertexColor != null) ? 
+            //var colorLegend = (nodes[d.index].color != null) ? nodes[d.index].color : 'NA';
+            
+            if (vertexColor != 'None' && vertexColor != null)
+            {
+              colorLegend = (verticesAttributes[vertexColor][d.index] != null) ? verticesAttributes[vertexColor][d.index] : 'NA';
+              properties += '<span style="text-align: left; font-size: 5em; color: ' + d.color + '">' + '&#9679' + '</span><p><b>' + colorLegend + '</b></p>';
+            }             
+
+            if (tooltipInfo != null)
+            {
+              properties += '<table>';
+
+              for (i = 0; i < tooltipInfo.length; i++)
+              {
+                properties += '<tr><td style="text-align: left">' + tooltipInfo[i].toUpperCase() + '</td><td style="text-align: right">' + verticesAttributes[tooltipInfo[i]][d.index] + '</td></tr>';
+              }
+              properties += '</table>';
             }
-            properties += '</table';
+            
             return '<span class="tipsy-title">' + d.name + '</span><br/>' + "\n" + properties;
         }
       });
 
+      var radiusArray = new Array();
+      d3.selectAll("circle").each( function(d, i){
+                      radiusArray[this.__data__.index] = d3.select(this).attr("r");
+                    });
+
       force.on("tick", function() {
-            link.attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
-            
-            circle.attr("transform", function(d) { return 'translate(' + [d.x, d.y] + ')'; })
-        });
+        path.attr("d", function(d) {
+                    var r = radiusArray[d.target.index];
+                    var dr = 0;
+                    var temp  = Math.sqrt(r * r * (d.source.y - d.target.y) * (d.source.y - d.target.y) / 
+                        ((d.source.x - d.target.x)*(d.source.x - d.target.x) + (d.source.y - d.target.y)*(d.source.y - d.target.y)));
+
+                    var yr, xr;
+                    if (d.source.y < d.target.y) 
+                      {
+                        yr = d.target.y - temp;
+                        xr = d.target.x - temp*(d.source.x - d.target.x)/(d.source.y - d.target.y);
+                      }
+                      else
+                      {
+                        yr = d.target.y + temp;
+                        xr = d.target.x + temp*(d.source.x - d.target.x)/(d.source.y - d.target.y);
+                      }
+                    
+                return "M" + 
+                    d.source.x + "," + 
+                    d.source.y + "A" + 
+                    dr + "," + dr + " 0 0,1 " + 
+                    xr + "," + 
+                    yr;
+            });
+
+            circle
+                .attr("transform", function(d) { 
+                return "translate(" + d.x + "," + d.y + ")"; });        
+      });
 
     }
 
