@@ -31,12 +31,12 @@ shinyServer(function(input, output) {
   characterChoices <- list()
   numericChoices <- list()
   
-  if (inherits(data, "igraph")) names_vertex_attributes <- names(vertex.attributes(data))
-  if (inherits(data, "networkDynamic")) names_vertex_attributes <- list.vertex.attributes(data)
+  if (inherits(data, "igraph")) names_vertex_attributes <- names(igraph::vertex.attributes(data))
+  if (inherits(data, "networkDynamic")) names_vertex_attributes <- network::list.vertex.attributes(data)
   for (i in names_vertex_attributes)
   {
-    if (inherits(data, "igraph")) temp_col <- vertex.attributes(data)[[paste(i)]]
-    if (inherits(data, "networkDynamic")) temp_col <- get.vertex.attribute(data, paste(i))
+    if (inherits(data, "igraph")) temp_col <- igraph::vertex.attributes(data)[[paste(i)]]
+    if (inherits(data, "networkDynamic")) temp_col <- network::get.vertex.attribute(data, paste(i))
     
     if (class(temp_col) == "character" || class(temp_col) == "logical")
     {
@@ -64,7 +64,7 @@ shinyServer(function(input, output) {
       {
         selectInput("tooltipAttr",
                     label = "Tooltip information",
-                    choices = c("Degree", "Betweenness", "Closeness", names(vertex.attributes(data))),
+                    choices = c("Degree", "Betweenness", "Closeness", names(igraph::vertex.attributes(data))),
                     multiple = TRUE
         )
       }
@@ -72,7 +72,7 @@ shinyServer(function(input, output) {
       {
         selectInput("tooltipAttr",
                     label = "Tooltip information",
-                    choices = list.vertex.attributes(data),
+                    choices = network::list.vertex.attributes(data),
                     multiple = TRUE
         )
       }
@@ -157,19 +157,19 @@ shinyServer(function(input, output) {
     if (inherits(data, "igraph"))
     {
       # full vertices data for tooltips
-      v_attributes <- vertex.attributes(data)
+      v_attributes <- igraph::vertex.attributes(data)
       v_attributes$Closeness <- as.vector(closeness(data))
       v_attributes$Betweenness <- as.vector(betweenness(data))
       v_attributes$Degree <- as.vector(degree(data))
     }
 
-    v_attributes <- vertex()
+    v_attributes <- list()
     
     if (inherits(data, "networkDynamic"))
     {
-      for (i in list.vertex.attributes(data))
+      for (i in network::list.vertex.attributes(data))
       {
-        v_attributes[[paste(i)]] <- get.vertex.attribute(data, paste(i))
+        v_attributes[[paste(i)]] <- network::get.vertex.attribute(data, paste(i))
       }
     }
     # full edges data

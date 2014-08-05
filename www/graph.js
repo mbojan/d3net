@@ -41,7 +41,6 @@ var networkOutputBinding = new Shiny.OutputBinding();
         }
       }
       console.log(edges.length)
-      //console.log(edges)
       /**
       Preparation of data sent by R
       */
