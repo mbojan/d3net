@@ -61,21 +61,15 @@ shinyServer(function(input, output) {
   
   output$tooltipAttr <- renderUI({
       if (inherits(data, "igraph"))
-      {
-        selectInput("tooltipAttr",
+        l <- c("Degree", "Betweenness", "Closeness", names(igraph::vertex.attributes(data)))
+      else if (inherits(data, "networkDynamic"))
+        l <- network::list.vertex.attributes(data)
+        
+      selectInput("tooltipAttr",
                     label = "Tooltip information",
-                    choices = c("Degree", "Betweenness", "Closeness", names(igraph::vertex.attributes(data))),
+                    choices = l,
                     multiple = TRUE
-        )
-      }
-      if (inherits(data, "networkDynamic"))
-      {
-        selectInput("tooltipAttr",
-                    label = "Tooltip information",
-                    choices = network::list.vertex.attributes(data),
-                    multiple = TRUE
-        )
-      }
+      )
   })
   
   output$vertexColor <- renderUI({
@@ -90,16 +84,6 @@ shinyServer(function(input, output) {
                 label = "Vertices radius reflect", 
                 choices = c("None", "Degree", "Betweenness", "Closeness", numericChoices),
                 selected = "None")
-  })
-  
-  output$time <- renderUI({
-    if (inherits(data, "networkDynamic"))  
-    {
-      selectInput("time", 
-                label = "Select timestamp", 
-                choices = get.change.times(data),
-                selected = get.change.times(data)[1])
-    }
   })
   
   edgesReflection <- reactive({
@@ -163,10 +147,11 @@ shinyServer(function(input, output) {
       v_attributes$Degree <- as.vector(degree(data))
     }
 
-    v_attributes <- list()
     
     if (inherits(data, "networkDynamic"))
     {
+      v_attributes <- list()
+      
       for (i in network::list.vertex.attributes(data))
       {
         v_attributes[[paste(i)]] <- network::get.vertex.attribute(data, paste(i))
@@ -179,8 +164,7 @@ shinyServer(function(input, output) {
     if (inherits(data, "networkDynamic")) 
     {
       dir = network::is.directed(data)
-      if (is.null(input$time)) timestamp <- get.change.times(data)[1]
-        else timestamp <- input$time
+      timestamp <- get.change.times(data)[length(get.change.times(data))]
       # d3 graph properties
       d3properties <- matrix(c(input$charge,
                                input$linkDistance, 
@@ -190,7 +174,7 @@ shinyServer(function(input, output) {
                                as.numeric(dir),
                                as.numeric(timestamp)), ncol = 7)
       colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
-                                  "vertexSizeMax", "directed", "time")
+                                  "vertexSizeMax", "directed", "timeMax")
     }
     if (inherits(data, "igraph")) 
     {
@@ -205,7 +189,6 @@ shinyServer(function(input, output) {
       colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
                                   "vertexSizeMax", "directed")
     }
-    
     
     if (inherits(data, "igraph")) type <- "igraph"
     if (inherits(data, "networkDynamic")) type <- "networkDynamic"

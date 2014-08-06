@@ -25,40 +25,48 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var vertexRadius = data.vertexRadius;
       var vertexColor = data.vertexColor;
       var graphType = data.graphType;
+      var scale = chroma.scale(['#f7fbff', '#08306b']);
 
-      //console.log(verticesAttributes)
-      
+      // remove inactive edges
       if (graphType == 'networkDynamic')
       {
         edges = data.links;
         for (var i = 0; i < edges.length; i++)
         {
-          //console.log(i)
           if ( d3properties[0].time < edges[i].onset || d3properties[0].time > edges[i].terminus)
             {
               edges.splice(i,1)
             }
         }
       }
-      console.log(edges.length)
-      /**
-      Preparation of data sent by R
-      */
-      colorsArray = new Array();
+
+      var stringsForColoring = [];
+      var projectionColors = {};
+
       for (var i = 0; i < vertices.length; i++)
       {
-        value = (vertexColor != 'None' && vertexColor != null) ? verticesAttributes[vertexColor][i] : '';
-        if (!colorsArray[value]) 
-          {
-            var newColor;
-            do {
-              newColor = randomColor({luminosity: 'light'});
-            }
-            while (colorsArray.indexOf(newColor) != -1)
-            colorsArray[value] = newColor;
-          }
+        value = (vertexColor != 'None' && vertexColor != null) ? verticesAttributes[vertexColor][i] : 'NA';
+        stringsForColoring.push(value)
+      }
+
+      // leave only unique elements
+      stringsForColoring = stringsForColoring.filter(function(elem, pos, self) {
+          return self.indexOf(elem) == pos;
+      })
+
+      for (var stringId in stringsForColoring)
+      {
+        if (!projectionColors[stringsForColoring[stringId]])
+          projectionColors[stringsForColoring[stringId]] = scale(1 - stringId/stringsForColoring.length);
+      }
+
+
+
+      for (var i = 0; i < vertices.length; i++)
+      {
+        value = (vertexColor != 'None' && vertexColor != null) ? verticesAttributes[vertexColor][i] : 'NA';
         property = (vertexRadius != 'None' && vertexRadius != null) ? verticesAttributes[vertexRadius][i] : null;
-        nodes.push({"name": vertices[i], "property" : property, "color" : colorsArray[value]});
+        nodes.push({"name": vertices[i], "property" : property, "color" : projectionColors[value]});
       }
 
       /**
@@ -233,9 +241,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
                     yr;
             });
 
-            circle
-                .attr("transform", function(d) { 
-                return "translate(" + d.x + "," + d.y + ")"; });        
+        circle
+          .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });        
       });
 
     }

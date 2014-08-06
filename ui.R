@@ -27,14 +27,13 @@ shinyUI(
              htmlOutput("edge"),
              htmlOutput("vertexColor"),
              htmlOutput("vertexRadius"),
-             htmlOutput("tooltipAttr"),
-             htmlOutput("time")
+             htmlOutput("tooltipAttr")
              ),
       column(8,
              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "tipsy.css")),
              tags$head(tags$script(src="graph.js")),
-             tags$head(tags$script(src="randomColor.js")),
              tags$head(tags$script(src="jquery.tipsy.js")),
+             tags$head(tags$script(src="chroma.min.js")),
              tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
              conditionalPanel(
                condition="input.outputFormat == 1",
