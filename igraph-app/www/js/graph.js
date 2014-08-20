@@ -1,7 +1,5 @@
 
 var networkOutputBinding = new Shiny.OutputBinding();
-       
-
   $.extend(networkOutputBinding, {
 
     find: function(scope) {
@@ -9,6 +7,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
     },
     
     renderValue: function(el, data) {
+      $("#color").colorpicker();
+
       /**
       Used variables 
       */
@@ -25,8 +25,10 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var vertexRadius = data.vertexRadius;
       var vertexColor = data.vertexColor;
       var graphType = data.graphType;
-      var scale = chroma.scale(['#f7fbff', '#08306b']);
-
+      var color = d3properties[0].color;
+      var minColor = 'lightyellow';
+      var scale = d3.scale.linear()
+        .range([minColor, color]);
       // remove inactive edges
       if (graphType == 'networkDynamic')
       {
@@ -53,15 +55,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
       stringsForColoring = stringsForColoring.filter(function(elem, pos, self) {
           return self.indexOf(elem) == pos;
       })
-
       for (var stringId in stringsForColoring)
       {
         if (!projectionColors[stringsForColoring[stringId]])
           projectionColors[stringsForColoring[stringId]] = scale(1 - stringId/stringsForColoring.length);
       }
-
-
-
       for (var i = 0; i < vertices.length; i++)
       {
         value = (vertexColor != 'None' && vertexColor != null) ? verticesAttributes[vertexColor][i] : 'NA';
@@ -145,7 +143,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .attr("class", "link")
           .style("stroke", "#6E6E6E")
           .style("stroke-opacity", function(d) { return (d.property) ? Math.max(0.3,(d.property/maxEdgeProperty)) : 0.5; })
-          .style("stroke-width", function(d) { return (d.property) ? Math.max(3,10*(d.property/maxEdgeProperty)) : 3; });
+          .style("stroke-width", function(d) { return (d.property) ? Math.max(3,10*(d.property/maxEdgeProperty)) : 3; })
+          .attr("marker-end", "url(#end)");
 
       if (d3properties[0].directed)
       {
@@ -185,8 +184,6 @@ var networkOutputBinding = new Shiny.OutputBinding();
         title: function() {
         var d = this.__data__;
             var properties = '';
-            //var colorLegend = (vertexColor != 'None' && vertexColor != null) ? 
-            //var colorLegend = (nodes[d.index].color != null) ? nodes[d.index].color : 'NA';
             
             if (vertexColor != 'None' && vertexColor != null)
             {
@@ -244,6 +241,22 @@ var networkOutputBinding = new Shiny.OutputBinding();
         circle
           .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });        
       });
+    
+      /**
+      Interval for indicating whether shiny is busy
+      Shows loading image when R is doing stuff
+      */
+      setInterval(function(){
+        if ($('html').attr('class')=='shiny-busy') {
+          setTimeout(function() {
+            if ($('html').attr('class')=='shiny-busy') {
+              $('div.busy').show()
+            }
+          }, 1000)
+        } else {
+          $('div.busy').hide()
+        }
+      }, 100)
 
     }
 

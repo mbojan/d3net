@@ -1,3 +1,7 @@
+############################
+#### IGRAPHS & NETWORKS ####
+############################
+
 reactiveNetwork <- function (outputId) 
 {
   HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg /></div>", sep=""))
@@ -5,10 +9,14 @@ reactiveNetwork <- function (outputId)
 
 shinyUI(
   fluidPage(
+    div(class = "busy",  
+        p("Calculation in progress.."), 
+        img(src="img/ajax-loader.gif")),
     fluidRow(h1("d3net")),
     fluidRow(
       column(2, 
              h4("d3 properties"),
+             
              sliderInput("charge", "Charge:", 
                          min=-500, max=0, value=-300),
              sliderInput("linkDistance", "Link distance:", 
@@ -16,7 +24,8 @@ shinyUI(
              sliderInput("linkStrength", "Link strength:", 
                          min=0, max=1, value=0.5),
              sliderInput("vertexSize", "Vertex size:", 
-                         min=1, max=100, value = c(10,50))
+                         min=1, max=100, value = c(10,50)),
+             textInput("color", "Choose color:", value = "#1714a8")
              ),
       column(2, 
              h4("R properties"),
@@ -30,10 +39,11 @@ shinyUI(
              htmlOutput("tooltipAttr")
              ),
       column(8,
-             tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "tipsy.css")),
-             tags$head(tags$script(src="graph.js")),
-             tags$head(tags$script(src="jquery.tipsy.js")),
-             tags$head(tags$script(src="chroma.min.js")),
+             tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/tipsy.css")),
+             tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/colorpicker.css")),
+             tags$head(tags$script(src="js/graph.js")),
+             tags$head(tags$script(src="js/bootstrap-colorpicker.js")),
+             tags$head(tags$script(src="js/jquery.tipsy.js")),
              tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
              conditionalPanel(
                condition="input.outputFormat == 1",
