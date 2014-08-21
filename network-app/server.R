@@ -160,7 +160,7 @@ shinyServer(function(input, output) {
                              input$linkStrength,
                              input$vertexSize[1],
                              input$vertexSize[2],
-                             input$color,
+                             input$colorScale,
                              as.numeric(dir),
                              as.numeric(timestamp)), ncol = 8)
     colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 

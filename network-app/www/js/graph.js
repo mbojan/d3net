@@ -9,8 +9,6 @@ var networkOutputBinding = new Shiny.OutputBinding();
     },
     
     renderValue: function(el, data) {
-      $("#color").colorpicker();
-
       /**
       Used variables 
       */
@@ -30,12 +28,52 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var height = 0.75 * $(window).height();
 
       var minColor = 'lightyellow';
-      var colorScale = d3.scale.linear().range([color, minColor]);
+      var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
+      var colorScale = d3.scale.linear().range([colorScalePicker(color), minColor]);
 
-
+      var playButtonHtml = '<button type="button" class="btn btn-default" id="playButton">' + '<i class="icon-play"></i>' + '</button>'
+      var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
+      var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
+      $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml);
+      $("#colorScaleDiv").find(".selectize-dropdown-content > div").each(function() { 
+        console.log("a");
+      })
+      
       var nodes = [],
           edges = [],
           radiusArray = [];
+
+      var animationInterval;
+      var time = 1;
+
+      function runInterval() {
+        animationInterval = setInterval(function(){
+          if (time > d3properties[0].timeMax) return;
+          updateData(time);
+          time++;
+        }, 4000);
+      }
+
+      $("#playButton").click(function(){
+        console.log("play");
+        force.start();
+        runInterval();
+      })
+
+      $("#pauseButton").click(function(){
+        console.log("pause");
+        force.stop();
+        clearInterval(animationInterval);
+      })
+
+      $("#replayButton").click(function(){
+        console.log("resume");
+        clearInterval(animationInterval);
+        edges = [];
+        nodes = [];
+        updateData(0);
+        time = 1;
+      })
 
       // color map for nodes
       var stringsForColoring = [];
@@ -281,16 +319,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
             edges.splice(i,1);
           }
         }
+
+        redraw();
       }
 
       updateData(0);
-      var time = 1;
-      setInterval(function(){
-        if (time > d3properties[0].timeMax) return;
-        updateData(time);
-        time++;
-        redraw();
-      }, 4000);
 
       /**
       Interval for indicating whether shiny is busy
