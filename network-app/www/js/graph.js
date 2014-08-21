@@ -68,11 +68,25 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       $("#replayButton").click(function(){
         console.log("resume");
+        force.stop();
         clearInterval(animationInterval);
-        edges = [];
         nodes = [];
-        updateData(0);
+        edges = [];
+        radiusArray = [];
         time = 1;
+        redraw();
+
+        force = d3.layout.force()
+          .nodes(nodes)
+          .links(edges)
+          .charge(d3properties[0].charge)
+          .linkDistance(d3properties[0].linkDistance)
+          .linkStrength(d3properties[0].linkStrength)
+          .size([width, height])
+          .on("tick", tick);
+
+        updateData(0);
+        
       })
 
       // color map for nodes
@@ -153,7 +167,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var node = svg.selectAll("circle");
       var edge = svg.append("svg:g").selectAll("path");
 
-      function tick(e) {
+      function tick() {
         node.each( function(d, i){
             radiusArray[this.__data__.index] = d3.select(this).attr("r");
           });
@@ -201,7 +215,6 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       function redraw() {
         force.start();
-
         node = node.data(nodes);
 
         node.enter().append("circle")
