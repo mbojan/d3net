@@ -25,7 +25,11 @@ shinyUI(
                          min=0, max=1, value=0.5),
              sliderInput("vertexSize", "Vertex size:", 
                          min=1, max=100, value = c(10,50)),
-             textInput("color", "Choose color:", value = "#1714a8")
+             selectizeInput("colorScale", "Choose color:",
+                            choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
+                                        "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
+                                        "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
+                                        "#17becf" = 9), selected = 0)
              ),
       column(2, 
              h4("R properties"),

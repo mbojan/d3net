@@ -27,21 +27,9 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var graphType = data.graphType;
       var color = d3properties[0].color;
       var minColor = 'lightyellow';
-      var scale = d3.scale.linear()
-        .range([minColor, color]);
-      // remove inactive edges
-      if (graphType == 'networkDynamic')
-      {
-        edges = data.links;
-        for (var i = 0; i < edges.length; i++)
-        {
-          if ( d3properties[0].time < edges[i].onset || d3properties[0].time > edges[i].terminus)
-            {
-              edges.splice(i,1)
-            }
-        }
-      }
-
+      var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
+      var scale = d3.scale.linear().range([colorScalePicker(color), minColor]);
+      
       var stringsForColoring = [];
       var projectionColors = {};
 
@@ -58,7 +46,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       for (var stringId in stringsForColoring)
       {
         if (!projectionColors[stringsForColoring[stringId]])
-          projectionColors[stringsForColoring[stringId]] = scale(1 - stringId/stringsForColoring.length);
+          projectionColors[stringsForColoring[stringId]] = scale(stringId/stringsForColoring.length);
       }
       for (var i = 0; i < vertices.length; i++)
       {

@@ -3,7 +3,7 @@
 ##########################
 data <- .d3net.dataset
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   output$rplot <- renderPlot({
     plot(data)
   })
@@ -28,6 +28,22 @@ shinyServer(function(input, output) {
       plot(data)
       dev.off()
     }
+  )
+  
+  updateSelectizeInput(
+    session, 'colorScale', server = FALSE,
+    options = list(create = TRUE, render = I(sprintf(
+      "{
+          option: function(item, escape) {
+            return '<div style=\"color: ' 
+            + escape(item.label) + '\">' + '&#9679 ' + escape(item.label) + '</div>';
+          },
+          item: function(item, escape) {
+            return '<div style=\"color: ' 
+            + escape(item.label) + '\">' + '&#9679 ' + escape(item.label) + '</div>';
+          }
+      }"
+    )))
   )
   
   characterChoices <- list()

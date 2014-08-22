@@ -35,59 +35,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
       var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
       $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml);
-      $("#colorScaleDiv").find(".selectize-dropdown-content > div").each(function() { 
-        console.log("a");
-      })
-      
+
       var nodes = [],
           edges = [],
           radiusArray = [];
 
-      var animationInterval;
-      var time = 1;
-
-      function runInterval() {
-        animationInterval = setInterval(function(){
-          if (time > d3properties[0].timeMax) return;
-          updateData(time);
-          time++;
-        }, 4000);
-      }
-
-      $("#playButton").click(function(){
-        console.log("play");
-        force.start();
-        runInterval();
-      })
-
-      $("#pauseButton").click(function(){
-        console.log("pause");
-        force.stop();
-        clearInterval(animationInterval);
-      })
-
-      $("#replayButton").click(function(){
-        console.log("resume");
-        force.stop();
-        clearInterval(animationInterval);
-        nodes = [];
-        edges = [];
-        radiusArray = [];
-        time = 1;
-        redraw();
-
-        force = d3.layout.force()
-          .nodes(nodes)
-          .links(edges)
-          .charge(d3properties[0].charge)
-          .linkDistance(d3properties[0].linkDistance)
-          .linkStrength(d3properties[0].linkStrength)
-          .size([width, height])
-          .on("tick", tick);
-
-        updateData(0);
-        
-      })
 
       // color map for nodes
       var stringsForColoring = [];
@@ -166,6 +118,53 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var node = svg.selectAll("circle");
       var edge = svg.append("svg:g").selectAll("path");
+
+      var animationInterval;
+      var time = 1;
+
+      function runInterval() {
+        animationInterval = setInterval(function(){
+          if (time > d3properties[0].timeMax) return;
+          updateData(time);
+          time++;
+        }, 1000);
+      }
+
+      $("#playButton").click(function(){
+        console.log("play");
+        force.start();
+        runInterval();
+      })
+
+      $("#pauseButton").click(function(){
+        console.log("pause");
+        force.stop();
+        clearInterval(animationInterval);
+      })
+
+      $("#replayButton").click(function(){
+        console.log("resume");
+        force.stop();
+        clearInterval(animationInterval);
+        edge.remove();
+
+        edges = [];
+        nodes = [];
+
+        force = d3.layout.force()
+          .nodes(nodes)
+          .links(edges)
+          .charge(d3properties[0].charge)
+          .linkDistance(d3properties[0].linkDistance)
+          .linkStrength(d3properties[0].linkStrength)
+          .size([width, height])
+          .on("tick", tick);
+
+        node = svg.selectAll("circle");
+        edge = svg.append("svg:g").selectAll("path");
+        console.log(edge)
+        updateData(0);
+      })
 
       function tick() {
         node.each( function(d, i){
@@ -291,8 +290,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .remove();
       }
 
-      function updateData(time)
-      {
+      function updateData(time){
           // add new nodes
         for (var i = 0; i < verticesActivity.length; i++)
           {
@@ -346,7 +344,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         if ($('html').attr('class')=='shiny-busy') {
           setTimeout(function() {
             if ($('html').attr('class')=='shiny-busy') {
-              $('div.busy').show()
+              $('div.busy').show();
             }
           }, 1000)
         } else {
