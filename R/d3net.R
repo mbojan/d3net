@@ -1,14 +1,27 @@
-require(shiny) 
-
+#' Launching Shiny apps
+#'
+#' Functions to launch the shiny app.
+#'
+#' @param dataset R object, see Details for available methods
+#'
+#' @export
+#' @import shiny
 d3net <- function(dataset) {
   UseMethod("d3net", dataset)
 }
 
+#' @method d3net default
+#' @rdname d3net
+#' @export
 d3net.default <- function(dataset)
 {
   print("Invalid arguments. Data should be igraph or networkDynamic class.")
 }
 
+#' @method d3net igraph
+#' @rdname d3net
+#' @import igraph
+#' @export
 d3net.igraph <- function(dataset)
 {
   print("Running Shiny App for igraphs...")
@@ -18,6 +31,11 @@ d3net.igraph <- function(dataset)
   shiny::runApp("igraph-app")
 }
 
+
+#' @method d3net networkDynamic
+#' @rdname d3net
+#' @import networkDynamic
+#' @export
 d3net.networkDynamic <- function(dataset)
 {
   print("Running Shiny App for dynamic networks...")
@@ -28,6 +46,11 @@ d3net.networkDynamic <- function(dataset)
   shiny::runApp("network-app")
 }
 
+
+#' @method d3net network
+#' @rdname d3net
+#' @import intergraph
+#' @export
 d3net.network <- function(dataset)
 {
   print("Running Shiny App for networks...")
