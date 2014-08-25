@@ -34,15 +34,15 @@ shinyServer(function(input, output, session) {
     session, 'colorScale', server = FALSE,
     options = list(create = TRUE, render = I(sprintf(
       "{
-       option: function(item, escape) {
-          return '<div style=\"color: ' 
-          + escape(item.label) + '\">' + '&#9679 ' + escape(item.label) + '</div>';
+          option: function(item, escape) {
+            return '<div><span style=\"color: ' 
+            + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
           },
           item: function(item, escape) {
-          return '<div style=\"color: ' 
-          + escape(item.label) + '\">' + '&#9679 ' + escape(item.label) + '</div>';
+            return '<div><span style=\"color: ' 
+            + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
           }
-    }"
+      }"
     )))
     )
   

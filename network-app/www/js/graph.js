@@ -31,10 +31,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
       var colorScale = d3.scale.linear().range([colorScalePicker(color), minColor]);
 
+      var playerLabel = '<label class="control-label">Animation control</label>'
       var playButtonHtml = '<button type="button" class="btn btn-default" id="playButton">' + '<i class="icon-play"></i>' + '</button>'
       var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
       var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
-      $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml);
+      $("#player").html(playerLabel + playButtonHtml + pauseButtonHtml + replayButtonHtml);
 
       var nodes = [],
           edges = [],
@@ -61,12 +62,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
         if (!projectionColors[stringsForColoring[stringId]])
           projectionColors[stringsForColoring[stringId]] = colorScale(stringId/stringsForColoring.length);
       }
-
+      console.log(verticesAttributes[vertexRadius])
       // for normalization: maximum property value that radius reflects (if none, then 0)  
       maxVertexProperty = (verticesAttributes[vertexRadius]) ? verticesAttributes[vertexRadius].reduce(function(acc, vertex) { 
-        if (vertex > acc) 
-          return vertex; 
+        if (parseInt(vertex) > acc) 
+          return parseInt(vertex); 
         else return acc}, 0) : 0;
+      console.log(maxVertexProperty)
 
       // remove old svg
       var svg = d3.select(el).select("svg");
@@ -122,48 +124,34 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var animationInterval;
       var time = 1;
 
-      function runInterval() {
+      function runInterval(intervalSeconds) {
         animationInterval = setInterval(function(){
           if (time > d3properties[0].timeMax) return;
           updateData(time);
           time++;
-        }, 1000);
+        }, intervalSeconds*1000);
       }
 
+      $("#interval").change(function() { 
+        if (runInterval === undefined) return;
+        clearInterval(animationInterval);
+        runInterval(parseInt($("#interval").val()));
+      });
+
       $("#playButton").click(function(){
-        console.log("play");
         force.start();
-        runInterval();
+        runInterval(parseInt($("#interval").val()));
       })
 
       $("#pauseButton").click(function(){
-        console.log("pause");
         force.stop();
         clearInterval(animationInterval);
       })
 
       $("#replayButton").click(function(){
-        console.log("resume");
         force.stop();
         clearInterval(animationInterval);
-        edge.remove();
-
-        edges = [];
-        nodes = [];
-
-        force = d3.layout.force()
-          .nodes(nodes)
-          .links(edges)
-          .charge(d3properties[0].charge)
-          .linkDistance(d3properties[0].linkDistance)
-          .linkStrength(d3properties[0].linkStrength)
-          .size([width, height])
-          .on("tick", tick);
-
-        node = svg.selectAll("circle");
-        edge = svg.append("svg:g").selectAll("path");
-        console.log(edge)
-        updateData(0);
+        cleanData(0);
       })
 
       function tick() {
@@ -305,6 +293,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
             nodes.push({ "name": vertices[index], 
               "terminus" : verticesActivity[i].terminus,
+              "onset" : verticesActivity[i].onset,
               "property" : radiusProperty,
               "color" : projectionColors[colorProperty]
             });
@@ -332,6 +321,23 @@ var networkOutputBinding = new Shiny.OutputBinding();
         }
 
         redraw();
+      }
+
+      function cleanData(time){
+        // remove old edges
+        for(var i = edges.length - 1; i >= 0; i--)
+        {
+          edges.splice(i,1);
+        }
+        
+        updateData(time);
+
+        for (var i = nodes.length - 1; i >= 0; i--)
+        {
+          if (nodes[i].onset !== time) nodes.splice(i,1);
+        }
+        redraw();
+
       }
 
       updateData(0);

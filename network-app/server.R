@@ -35,12 +35,12 @@ shinyServer(function(input, output, session) {
     options = list(create = TRUE, render = I(sprintf(
       "{
           option: function(item, escape) {
-            return '<div style=\"color: ' 
-            + escape(item.label) + '\">' + '&#9679 ' + escape(item.label) + '</div>';
+            return '<div><span style=\"color: ' 
+            + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
           },
           item: function(item, escape) {
-            return '<div style=\"color: ' 
-            + escape(item.label) + '\">' + '&#9679 ' + escape(item.label) + '</div>';
+            return '<div><span style=\"color: ' 
+            + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
           }
       }"
     )))
@@ -97,11 +97,12 @@ shinyServer(function(input, output, session) {
   })
   
   output$timestampSlider <- renderUI({
-    sliderInput("timestampSlider",
+    div(class="span4",
+        sliderInput("timestampSlider",
                 label = "Select timestamp",
                 min = get.change.times(data)[1], 
                 max = get.change.times(data)[length(get.change.times(data))],
-                value=get.change.times(data)[1])
+                value=get.change.times(data)[1]))
   })
   
   edgesReflection <- reactive({
