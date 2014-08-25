@@ -96,15 +96,6 @@ shinyServer(function(input, output, session) {
                 selected = "None")
   })
   
-  output$timestampSlider <- renderUI({
-    div(class="span4",
-        sliderInput("timestampSlider",
-                label = "Select timestamp",
-                min = get.change.times(data)[1], 
-                max = get.change.times(data)[length(get.change.times(data))],
-                value=get.change.times(data)[1]))
-  })
-  
   edgesReflection <- reactive({
     if (inherits(data, "networkDynamic"))
       return(rep(NA,length(get.edge.activity(data, as.spellList = TRUE)$tail)))

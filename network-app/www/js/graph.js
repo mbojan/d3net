@@ -31,12 +31,12 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
       var colorScale = d3.scale.linear().range([colorScalePicker(color), minColor]);
 
-      var playerLabel = '<label class="control-label">Animation control</label>'
       var playButtonHtml = '<button type="button" class="btn btn-default" id="playButton">' + '<i class="icon-play"></i>' + '</button>'
       var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
       var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
-      $("#player").html(playerLabel + playButtonHtml + pauseButtonHtml + replayButtonHtml);
-
+      $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml);
+      $("#slider").attr("max", d3properties[0].timeMax);
+      
       var nodes = [],
           edges = [],
           radiusArray = [];
@@ -62,13 +62,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
         if (!projectionColors[stringsForColoring[stringId]])
           projectionColors[stringsForColoring[stringId]] = colorScale(stringId/stringsForColoring.length);
       }
-      console.log(verticesAttributes[vertexRadius])
       // for normalization: maximum property value that radius reflects (if none, then 0)  
       maxVertexProperty = (verticesAttributes[vertexRadius]) ? verticesAttributes[vertexRadius].reduce(function(acc, vertex) { 
         if (parseInt(vertex) > acc) 
           return parseInt(vertex); 
         else return acc}, 0) : 0;
-      console.log(maxVertexProperty)
 
       // remove old svg
       var svg = d3.select(el).select("svg");
@@ -126,14 +124,17 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       function runInterval(intervalSeconds) {
         animationInterval = setInterval(function(){
-          if (time > d3properties[0].timeMax) return;
+          if (time > d3properties[0].timeMax) 
+            {
+              return;
+            }
           updateData(time);
           time++;
         }, intervalSeconds*1000);
       }
 
       $("#interval").change(function() { 
-        if (runInterval === undefined) return;
+        if (animationInterval === undefined) return;
         clearInterval(animationInterval);
         runInterval(parseInt($("#interval").val()));
       });
@@ -151,10 +152,19 @@ var networkOutputBinding = new Shiny.OutputBinding();
       $("#replayButton").click(function(){
         force.stop();
         clearInterval(animationInterval);
+        time = 1;
         cleanData(0);
+        $("#slider").val(0);
+        force.start();
+        runInterval(parseInt($("#interval").val()));
       })
 
       function tick() {
+        if (animationInterval === undefined) 
+          $("#slider").val(0);
+        else
+          $("#slider").val(time);
+
         node.each( function(d, i){
             radiusArray[this.__data__.index] = d3.select(this).attr("r");
           });
@@ -301,9 +311,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
         // remove old nodes
         for (var i = nodes.length - 1; i >= 0; i--)
         {
-          if(nodes[i].terminus == time - 1){
+          if(nodes[i].terminus == time - 1)
             nodes.splice(i,1);
-          }
         }
         // add new edges
         for (var i = 0; i < links.length; i++)
@@ -323,21 +332,25 @@ var networkOutputBinding = new Shiny.OutputBinding();
         redraw();
       }
 
-      function cleanData(time){
+      function cleanData(timeReset){
         // remove old edges
         for(var i = edges.length - 1; i >= 0; i--)
         {
           edges.splice(i,1);
         }
-        
-        updateData(time);
+
+        for (var i = 0; i < links.length; i++)
+        {
+          if (links[i].onset !== timeReset) continue;
+          edges.push(links[i]);
+        }
 
         for (var i = nodes.length - 1; i >= 0; i--)
         {
-          if (nodes[i].onset !== time) nodes.splice(i,1);
+          if (nodes[i].onset !== timeReset) nodes.splice(i,1);
         }
-        redraw();
 
+        redraw();
       }
 
       updateData(0);
