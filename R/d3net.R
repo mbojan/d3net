@@ -15,7 +15,7 @@ d3net <- function(dataset) {
 #' @export
 d3net.default <- function(dataset)
 {
-  print("Invalid arguments. Data should be igraph or networkDynamic class.")
+  stop(paste("no 'd3net' method for objects of class", class(dataset)))
 }
 
 #' @method d3net igraph
