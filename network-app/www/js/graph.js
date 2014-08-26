@@ -128,6 +128,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
             {
               return;
             }
+          $("#timeCount").text(time);
           updateData(time);
           time++;
         }, intervalSeconds*1000);
@@ -215,6 +216,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         node = node.data(nodes);
 
         node.enter().append("circle")
+          .transition(500)
             .attr("class", "node")
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; })
@@ -270,11 +272,12 @@ var networkOutputBinding = new Shiny.OutputBinding();
         edge = edge.data(edges);
 
         edge.enter().append("path")
+          .transition(1000)
           .attr("marker-end", "url(#end)")
-          .style("stroke", "black")
           .transition()
             .duration(500)
             .style("stroke-width", 3)
+            .style("stroke", "black")
           .transition()
             .duration(1500)
             .ease("linear")

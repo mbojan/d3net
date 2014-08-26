@@ -53,7 +53,8 @@ shinyUI(
              reactiveNetwork(outputId = "mainnet"),
              div(class="span12",
                  progressBar(),
-                 div(id = "player", class="span4 btn-group btn-group-justified"))
+                 div(id = "player", class="span4 btn-group btn-group-justified"),
+                 div(id = "timeCount", class="span4"))
              #plotOutput("rplot"),
              #downloadButton("pngDownload","Download plot as .png"),
              #downloadButton("pdfDownload","Download plot as .pdf"))

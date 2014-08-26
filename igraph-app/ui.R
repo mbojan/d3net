@@ -44,9 +44,7 @@ shinyUI(
              ),
       column(8,
              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/tipsy.css")),
-             tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/colorpicker.css")),
              tags$head(tags$script(src="js/graph.js")),
-             tags$head(tags$script(src="js/bootstrap-colorpicker.js")),
              tags$head(tags$script(src="js/jquery.tipsy.js")),
              tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
              conditionalPanel(
