@@ -4,6 +4,9 @@
 #'
 #' @param dataset R object, see Details for available methods
 #'
+#' Currently methods are implemented for objects of class "igraph", "network",
+#' and "networkDynamic".
+#'
 #' @export
 #' @import shiny
 d3net <- function(dataset) {
@@ -28,7 +31,7 @@ d3net.igraph <- function(dataset)
   require(igraph)
   .GlobalEnv$.d3net.dataset <- dataset
   on.exit(rm(.d3net.dataset, envir=.GlobalEnv))
-  shiny::runApp("igraph-app")
+  shiny::runApp( system.file("igraph-app", package="d3net") )
 }
 
 
@@ -59,6 +62,6 @@ d3net.network <- function(dataset)
   dataset <- asIgraph(dataset)
   .GlobalEnv$.d3net.dataset <- dataset
   on.exit(rm(.d3net.dataset, envir=.GlobalEnv))
-  shiny::runApp("igraph-app")   
+  shiny::runApp( system.file("igraph-app", package="d3net") )
 }
   
