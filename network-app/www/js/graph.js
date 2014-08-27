@@ -225,7 +225,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
             .style("fill", minColor)
             .style("stroke", "black")
           .transition()
-            .duration(100)
+            .duration(baseDuration)
             .ease("linear")
             .style("fill", function(d) { return d.color;})
             .attr("r", function(d) { return (d.property && maxVertexProperty) ? 
@@ -266,7 +266,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
         node.exit()
           .transition()
-            .duration(100)
+            .duration(baseDuration)
             .ease("linear")
             .style("fill-opacity", 0.001)
             .remove();
@@ -275,7 +275,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
         edge.enter().append("path")
           .transition()
-            .duration(baseDuration)
+            .duration(3*baseDuration)
             .style("stroke-width", 3)
             .style("stroke", "red")
           .transition()
@@ -289,11 +289,12 @@ var networkOutputBinding = new Shiny.OutputBinding();
           svg.selectAll("path").attr("marker-end", "url(#end)")
         }
 
-        edge.exit().transition()
-          .duration(baseDuration)
-          .ease("linear")
-          .style("stroke-opacity", 0.001)
-          .remove();
+        edge.exit()
+          .transition()
+            .duration(baseDuration)
+            .ease("linear")
+            .style("stroke-opacity", 0.001)
+            .remove();
       }
 
       function updateData(time){

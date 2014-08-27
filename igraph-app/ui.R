@@ -19,12 +19,9 @@ shinyUI(
              
              sliderInput("charge", "Charge:", 
                          min=-500, max=0, value=-300),
-             sliderInput("linkDistance", "Link distance:", 
-                         min=0, max=300, value=150),
+             htmlOutput("layoutProperties"),
              sliderInput("linkStrength", "Link strength:", 
                          min=0, max=1, value=0.5),
-             sliderInput("vertexSize", "Vertex size:", 
-                         min=1, max=100, value = c(10,50)),
              selectizeInput("colorScale", "Choose color:",
                             choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
                                         "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
