@@ -66,7 +66,7 @@ shinyServer(function(input, output, session) {
   }
   
   output$edge <- renderUI({
-    if (inherits(data, "igraph") && is.weighted(data))
+    if (is.weighted(data))
       l <- c("None" = "none","Betweenness" = "betweenness", "Weight" = "weight")
     else
       l <- c("None" = "none","Betweenness" = "betweenness")

@@ -35,8 +35,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
       var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
       $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml);
+      $("#slider").attr("min", d3properties[0].timeMin);
       $("#slider").attr("max", d3properties[0].timeMax);
-      
+      $("#slider").val(Number(d3properties[0].timeMin));
+      $("#timeCount").text('Current: ' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax);
+
       var nodes = [],
           edges = [],
           radiusArray = [];
@@ -102,33 +105,34 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .size([width, height])
           .on("tick", tick);
 
-      var markerSize = 7;
-
-      svg.append("svg:defs").selectAll("marker")
-        .data(["end"])      // Different link/path types can be defined here
-      .enter().append("svg:marker")    // This section adds in the arrows
-        .attr("id", String)
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", function(d) { return markerSize; })
-        .attr("markerWidth", markerSize)
-        .attr("markerHeight", markerSize)
-        .attr("orient", "auto")
-      .append("svg:path")
-        .attr("d", "M0,-5L10,0L0,5");
+      if (d3properties[0].directed == 1)
+      {
+        var markerSize = 7;
+        svg.append("svg:defs").selectAll("marker")
+          .data(["end"])      // Different link/path types can be defined here
+        .enter().append("svg:marker")    // This section adds in the arrows
+          .attr("id", String)
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", function(d) { return markerSize; })
+          .attr("markerWidth", markerSize)
+          .attr("markerHeight", markerSize)
+          .attr("orient", "auto")
+        .append("svg:path")
+          .attr("d", "M0,-5L10,0L0,5");
+      }
 
       var node = svg.selectAll("circle");
       var edge = svg.append("svg:g").selectAll("path");
 
       var animationInterval;
-      var time = 1;
+      var time = Number(d3properties[0].timeMin) + 1;
 
       function runInterval(intervalSeconds) {
         animationInterval = setInterval(function(){
+          $("#slider").val(time);
           if (time > d3properties[0].timeMax) 
-            {
-              return;
-            }
-          $("#timeCount").text(time);
+            return;
+          $("#timeCount").text('Current: ' + time + ' / ' + d3properties[0].timeMax);
           updateData(time);
           time++;
         }, intervalSeconds*1000);
@@ -153,18 +157,15 @@ var networkOutputBinding = new Shiny.OutputBinding();
       $("#replayButton").click(function(){
         force.stop();
         clearInterval(animationInterval);
-        time = 1;
-        cleanData(0);
-        $("#slider").val(0);
+        time = Number(d3properties[0].timeMin) + 1;
+        cleanData(Number(d3properties[0].timeMin));
+        $("#timeCount").text('Current: ' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax);
+        $("#slider").val(d3properties[0].timeMin);
         force.start();
         runInterval(parseInt($("#interval").val()));
       })
 
       function tick() {
-        if (animationInterval === undefined) 
-          $("#slider").val(0);
-        else
-          $("#slider").val(time);
 
         node.each( function(d, i){
             radiusArray[this.__data__.index] = d3.select(this).attr("r");
@@ -212,11 +213,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
       }
 
       function redraw() {
+        console.log(nodes.length)
+        console.log(edges.length)
+        console.log(time)
         force.start();
         node = node.data(nodes);
 
         node.enter().append("circle")
-          .transition(500)
             .attr("class", "node")
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; })
@@ -272,17 +275,19 @@ var networkOutputBinding = new Shiny.OutputBinding();
         edge = edge.data(edges);
 
         edge.enter().append("path")
-          .transition(1000)
-          .attr("marker-end", "url(#end)")
           .transition()
-            .duration(500)
+            .duration(1000)
             .style("stroke-width", 3)
             .style("stroke", "black")
           .transition()
             .duration(1500)
             .ease("linear")
-            .style("stroke-width", 1)
-            
+            .style("stroke-width", 1);
+
+        if (d3properties[0].directed == 1) 
+        {
+          svg.selectAll("path").attr("marker-end", "url(#end)")
+        }
 
         edge.exit().transition()
           .duration(750)
@@ -296,15 +301,15 @@ var networkOutputBinding = new Shiny.OutputBinding();
         for (var i = 0; i < verticesActivity.length; i++)
           {
             // pass the nodes that are not appearing at this specific moment
-            if (verticesActivity[i].onset !== time) 
-              continue;
+            if (verticesActivity[i].onset !== time) continue;
 
             // add nodes that appear at this moment
             var index = verticesActivity[i]["vertex.id"] - 1 ;
             var radiusProperty = (vertexRadius != 'None' && vertexRadius != null) ? verticesAttributes[vertexRadius][index] : null;
             var colorProperty = (vertexColor != 'None' && vertexColor != null) ? verticesAttributes[vertexColor][index] : 'NA';
 
-            nodes.push({ "name": vertices[index], 
+            nodes.push({ 
+              "name" : vertices[index], 
               "terminus" : verticesActivity[i].terminus,
               "onset" : verticesActivity[i].onset,
               "property" : radiusProperty,
@@ -356,7 +361,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         redraw();
       }
 
-      updateData(0);
+      updateData(Number(d3properties[0].timeMin));
 
       /**
       Interval for indicating whether shiny is busy

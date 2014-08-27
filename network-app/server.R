@@ -49,10 +49,10 @@ shinyServer(function(input, output, session) {
   characterChoices <- list()
   numericChoices <- list()
   
-  if (inherits(data, "networkDynamic")) names_vertex_attributes <- network::list.vertex.attributes(data)
+  names_vertex_attributes <- network::list.vertex.attributes(data)
   for (i in names_vertex_attributes)
   {
-    if (inherits(data, "networkDynamic")) temp_col <- network::get.vertex.attribute(data, paste(i))
+    temp_col <- network::get.vertex.attribute(data, paste(i))
     
     if (class(temp_col) == "character" || class(temp_col) == "logical")
     {
@@ -97,27 +97,24 @@ shinyServer(function(input, output, session) {
   })
   
   edgesReflection <- reactive({
-    if (inherits(data, "networkDynamic"))
-      return(rep(NA,length(get.edge.activity(data, as.spellList = TRUE)$tail)))
+    return(rep(NA,length(get.edge.activity(data, as.spellList = TRUE)$tail)))
   })
   
   output$mainnet <- reactive({
     # node activity matrix
     nodesActivity <- get.vertex.activity(data, as.spellList = TRUE)[c("vertex.id", "onset", "terminus")]
     # remove -Inf
-    nodesActivity$onset[nodesActivity$onset == -Inf] <- get.change.times(data)[1]
+    nodesActivity$onset[nodesActivity$onset == -Inf] <- range(get.network.attribute(base,'net.obs.period')$observations)[1]
     # remove Inf
-    nodesActivity$terminus[nodesActivity$terminus == Inf] <- get.change.times(data)[length(get.change.times(data))]
+    nodesActivity$terminus[nodesActivity$terminus == Inf] <- range(get.network.attribute(base,'net.obs.period')$observations)[2]
     
     # node names
     nodes <- as.character(network.vertex.names(data))
     
     # edges acitivity matrix
     connectionsIdx <- get.edge.activity(data, as.spellList = TRUE)[c("onset", "terminus", "tail", "head")]
-    
     for (i in 1:nrow(connectionsIdx)) 
-    { 
-      
+    {
       # remove onset -infitiy values
       if (connectionsIdx[i,]$onset == -Inf)
         connectionsIdx[i,]$onset <-
@@ -135,7 +132,6 @@ shinyServer(function(input, output, session) {
       connectionsIdx[i,]$head <- connectionsIdx[i,]$head - 1
     }
     
-    
     # what edges should reflect
     edges_property <- matrix(edgesReflection())
     
@@ -146,7 +142,6 @@ shinyServer(function(input, output, session) {
     # format data for javascript
     nodesActivity <- as.matrix(nodesActivity)
     connectionsIdx <- as.matrix(connectionsIdx)
-    
     v_attributes <- list()
       
     for (i in network::list.vertex.attributes(data))
@@ -157,11 +152,9 @@ shinyServer(function(input, output, session) {
     }
     
     # full edges data
-    #e_attributes <- edge.attributes(data)
-    #e_attributes$Betweenness <- as.vector(edge.betweenness(data))
-    
     dir = network::is.directed(data)
-    timestamp <- get.change.times(data)[length(get.change.times(data))]
+    timeRangeMin <- range(get.network.attribute(data,'net.obs.period')$observations)[1]
+    timeRangeMax <- range(get.network.attribute(data,'net.obs.period')$observations)[2]
     # d3 graph properties
     d3properties <- matrix(c(input$charge,
                              input$linkDistance, 
@@ -170,12 +163,12 @@ shinyServer(function(input, output, session) {
                              input$vertexSize[2],
                              input$colorScale,
                              as.numeric(dir),
-                             as.numeric(timestamp)), ncol = 8)
+                             as.numeric(timeRangeMin),
+                             as.numeric(timeRangeMax)), ncol = 9)
     colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
-                                "vertexSizeMax", "color", "directed", "timeMax")
+                                "vertexSizeMax", "color", "directed", "timeMin", "timeMax")
 
     type <- "networkDynamic"
-    
     graphData <- list(vertices = nodes, # vertices
                       verticesActivity = nodesActivity, # vertices time stamps
                       links = connectionsIdx, # edges
@@ -185,7 +178,6 @@ shinyServer(function(input, output, session) {
                       vertexColor = input$vertexColor, # attribute that vertex color should reflect
                       edgeThickness = input$edge, # attribute that edge thickness should reflect
                       verticesAttributes = v_attributes, # vertex attributes data
-                      #edgesAttributes = e_attributes, # edges attributes data
                       d3 = d3properties)
     graphData
   })
