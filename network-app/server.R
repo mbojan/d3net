@@ -158,17 +158,21 @@ shinyServer(function(input, output, session) {
     timeRangeMax <- range(get.network.attribute(data,'net.obs.period')$observations)[2]
     
     # d3 graph properties
-    d3properties <- matrix(c(input$charge,
-                             input$linkDistance, 
+    if (is.null(input$charge)) charge <- chargeValue else charge <- input$charge
+    if (is.null(input$linkDistance)) linkDist <- linkDistanceValue else linkDist <- input$linkDistance
+    if (is.null(input$vertexSize[1])) vertexMin <- vertexSizeMinValue else vertexMin <- input$vertexSize[1]
+    if (is.null(input$vertexSize[2])) vertexMax <- vertexSizeMinValue*3 else vertexMax <- input$vertexSize[2]
+    d3properties <- matrix(c(charge,
+                             linkDist,
+                             vertexMin,
+                             vertexMax,
                              input$linkStrength,
-                             input$vertexSize[1],
-                             input$vertexSize[2],
                              input$colorScale,
                              as.numeric(dir),
                              as.numeric(timeRangeMin),
                              as.numeric(timeRangeMax)), ncol = 9)
-    colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
-                                "vertexSizeMax", "color", "directed", "timeMin", "timeMax")
+    colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", "vertexSizeMax", 
+                                "linkStrength", "color", "directed", "timeMin", "timeMax")
 
     type <- "networkDynamic"
     graphData <- list(vertices = nodes, # vertices
