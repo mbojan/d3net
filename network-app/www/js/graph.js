@@ -213,9 +213,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       }
 
       function redraw() {
-        console.log(nodes.length)
-        console.log(edges.length)
-        console.log(time)
+        var baseDuration = parseInt($("#interval").val())*125;
         force.start();
         node = node.data(nodes);
 
@@ -227,11 +225,11 @@ var networkOutputBinding = new Shiny.OutputBinding();
             .style("fill", minColor)
             .style("stroke", "black")
           .transition()
-            .duration(1000)
+            .duration(100)
             .ease("linear")
             .style("fill", function(d) { return d.color;})
             .attr("r", function(d) { return (d.property && maxVertexProperty) ? 
-            Math.max(d3properties[0].vertexSizeMin, d3properties[0].vertexSizeMax*(d.property/maxVertexProperty)) : d3properties[0].vertexSizeMin; } )
+            Math.max(d3properties[0].vertexSizeMin, d3properties[0].vertexSizeMax*(d.property/maxVertexProperty)) : d3properties[0].vertexSizeMin; } );
 
         node.call(force.drag);
 
@@ -266,22 +264,24 @@ var networkOutputBinding = new Shiny.OutputBinding();
           }
         });
 
-        node.exit().transition()
-          .duration(500)
-          .ease("linear")
-          .style("fill-opacity", 0.001)
-          .remove();
+        node.exit()
+          .transition()
+            .duration(100)
+            .ease("linear")
+            .style("fill-opacity", 0.001)
+            .remove();
 
         edge = edge.data(edges);
 
         edge.enter().append("path")
           .transition()
-            .duration(1000)
+            .duration(baseDuration)
             .style("stroke-width", 3)
-            .style("stroke", "black")
+            .style("stroke", "red")
           .transition()
-            .duration(1500)
+            .duration(baseDuration)
             .ease("linear")
+            .style("stroke", "black")
             .style("stroke-width", 1);
 
         if (d3properties[0].directed == 1) 
@@ -290,7 +290,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         }
 
         edge.exit().transition()
-          .duration(750)
+          .duration(baseDuration)
           .ease("linear")
           .style("stroke-opacity", 0.001)
           .remove();

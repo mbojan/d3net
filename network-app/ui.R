@@ -13,22 +13,33 @@ progressBar <- function ()
        <input id="slider" type ="range" min ="0" max="10" step ="1" value ="0" disabled ="TRUE" style="width: 100%;"/>
        </div>')
 }
+
+alert <- function()
+{
+  HTML('<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert">
+    <span aria-hidden="true">&times;</span>
+    <span class="sr-only"></span></button>
+      <strong>Warning!</strong> Changing settings resets the graph.
+    </div>')
+}
 shinyUI(
   fluidPage(
     fluidRow(h1("d3net")),
+    fluidRow(column(4, alert())),
     fluidRow(
       column(2, 
              h4("d3 properties"),
              sliderInput("interval", "Time interval (seconds):",
-                         min=1, max=10, value=4),
+                         min=0.1, max=5, value=1.0),
              sliderInput("charge", "Charge:", 
-                         min=-500, max=0, value=-10),
+                         min=-500, max=0, value=-300),
              sliderInput("linkDistance", "Link distance:", 
-                         min=0, max=300, value=15),
+                         min=0, max=300, value=150),
              sliderInput("linkStrength", "Link strength:", 
-                         min=0, max=1, value=0.1),
+                         min=0, max=1, value=0.5),
              sliderInput("vertexSize", "Vertex size:", 
-                         min=1, max=100, value = c(2,20)),
+                         min=1, max=100, value = c(10,20)),
              selectizeInput("colorScale", "Choose color:",
                          choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
                                      "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 

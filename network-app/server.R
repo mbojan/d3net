@@ -104,9 +104,9 @@ shinyServer(function(input, output, session) {
     # node activity matrix
     nodesActivity <- get.vertex.activity(data, as.spellList = TRUE)[c("vertex.id", "onset", "terminus")]
     # remove -Inf
-    nodesActivity$onset[nodesActivity$onset == -Inf] <- range(get.network.attribute(base,'net.obs.period')$observations)[1]
+    nodesActivity$onset[nodesActivity$onset == -Inf] <- range(get.network.attribute(data,'net.obs.period')$observations)[1]
     # remove Inf
-    nodesActivity$terminus[nodesActivity$terminus == Inf] <- range(get.network.attribute(base,'net.obs.period')$observations)[2]
+    nodesActivity$terminus[nodesActivity$terminus == Inf] <- range(get.network.attribute(data,'net.obs.period')$observations)[2]
     
     # node names
     nodes <- as.character(network.vertex.names(data))
