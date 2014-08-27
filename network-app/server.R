@@ -65,35 +65,36 @@ shinyServer(function(input, output, session) {
     }
   }
   
-  output$edge <- renderUI({
-    l <- c("None" = "none")
-    selectInput("edge",
-                label = "Edges reflect",
-                choices =  l)
+  # calculate predefined values for layout properties
+  no_nodes <- length(network.vertex.names(data))
+  chargeValue <- round(0.12 * no_nodes - 125)
+  linkDistanceValue <- round(-0.04 * no_nodes + 54)
+  vertexSizeMinValue <- round(-0.008 * no_nodes + 10.5)
+  
+  output$layoutProperties <- renderUI({
+    list(
+      sliderInput("linkDistance", "Link distance:", 
+                min=0, max=300, value = linkDistanceValue ),
+      sliderInput("charge", "Charge:", 
+                min=-500, max=0, value = chargeValue ),
+      sliderInput("vertexSize", "Vertex size:", 
+                  min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
   })
   
-  output$tooltipAttr <- renderUI({
-      l <- network::list.vertex.attributes(data)
-      selectInput("tooltipAttr",
-                    label = "Tooltip information",
-                    choices = l,
-                    multiple = TRUE
-      )
-  })
-  
-  output$vertexColor <- renderUI({
-    selectInput("vertexColor", 
-                label = "Vertices color reflect", 
-                choices = c("None", characterChoices),
-                selected = "None")
-  })
-  
-  output$vertexRadius <- renderUI({
-    l <- c("None", numericChoices)
-    selectInput("vertexRadius", 
-                label = "Vertices radius reflect", 
-                choices = l,
-                selected = "None")
+  output$rProperties <- renderUI({
+    list(
+      selectInput("edge", label = "Edges reflect",
+                choices =  c("None" = "none")),
+      selectInput("vertexColor", label = "Vertices color reflect", 
+                  choices = c("None", characterChoices),
+                  selected = "None"),
+      selectInput("vertexRadius", label = "Vertices radius reflect", 
+                  choices = c("None", numericChoices),
+                  selected = "None"),
+      selectInput("tooltipAttr",label = "Tooltip information",
+                  choices = network::list.vertex.attributes(data),
+                  multiple = TRUE)
+    )
   })
   
   edgesReflection <- reactive({
@@ -155,6 +156,7 @@ shinyServer(function(input, output, session) {
     dir = network::is.directed(data)
     timeRangeMin <- range(get.network.attribute(data,'net.obs.period')$observations)[1]
     timeRangeMax <- range(get.network.attribute(data,'net.obs.period')$observations)[2]
+    
     # d3 graph properties
     d3properties <- matrix(c(input$charge,
                              input$linkDistance, 

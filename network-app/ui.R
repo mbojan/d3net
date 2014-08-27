@@ -23,23 +23,18 @@ alert <- function()
       <strong>Warning!</strong> Changing settings resets the graph.
     </div>')
 }
+
 shinyUI(
   fluidPage(
     fluidRow(h1("d3net")),
-    fluidRow(column(4, alert())),
     fluidRow(
       column(2, 
              h4("d3 properties"),
              sliderInput("interval", "Time interval (seconds):",
-                         min=0.1, max=5, value=1.0),
-             sliderInput("charge", "Charge:", 
-                         min=-500, max=0, value=-300),
-             sliderInput("linkDistance", "Link distance:", 
-                         min=0, max=300, value=150),
+                         min=0.1, max=5, step=0.1, value=1.0),
+             htmlOutput("layoutProperties"),
              sliderInput("linkStrength", "Link strength:", 
                          min=0, max=1, value=0.5),
-             sliderInput("vertexSize", "Vertex size:", 
-                         min=1, max=100, value = c(10,20)),
              selectizeInput("colorScale", "Choose color:",
                          choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
                                      "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
@@ -48,10 +43,7 @@ shinyUI(
       ),
       column(2, 
              h4("R properties"),
-             htmlOutput("edge"),
-             htmlOutput("vertexColor"),
-             htmlOutput("vertexRadius"),
-             htmlOutput("tooltipAttr")
+             htmlOutput("rProperties")
              ),
       column(8,
              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/tipsy.css")),
