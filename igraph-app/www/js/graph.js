@@ -28,6 +28,9 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var minColor = 'lightyellow';
       var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
       var scale = d3.scale.linear().range([colorScalePicker(color), minColor]);
+
+      var zoomButtonHtml = '<button type="button" class="btn btn-default btn-lg" id="zoomButton">Zooming</button>'
+      $("#player").html(zoomButtonHtml);
       
       var stringsForColoring = [];
       var projectionColors = {};
@@ -79,12 +82,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .size([width, height])
         .start();
       
-      /**
-        Zooming the graph
-      */
-      function zoomGraph() {
-        background.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-      }
+
 
       //remove the old graph
       var svg = d3.select(el).select("svg");
@@ -105,7 +103,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .attr("viewBox", "0, 0, " + width + ", " + height)
         .attr("preserveAspectRatio", "xMidYMid meet");
 
-      var background = svg.append('svg:g').call(d3.behavior.zoom().on("zoom", zoomGraph)).append('g');
+      var background = svg.append('svg:g');
 
       background.append('svg:rect')
         .attr('width', width)
@@ -121,6 +119,39 @@ var networkOutputBinding = new Shiny.OutputBinding();
           graph.attr("width", targetWidth);
           graph.attr("height", Math.round(targetWidth / aspect));
       }).trigger("resize");
+
+      /**
+        Zooming the graph
+      */
+      function zoomGraph() {
+        if (currentTranslation != null && currentScale != null)
+        {
+          zoom.translate(currentTranslation);
+          zoom.scale(currentScale)
+          currentTranslation = null;
+          currentScale = null;
+        }
+        background.attr("transform", "translate(" +  zoom.translate() + ")scale(" + zoom.scale() + ")");
+      }
+
+      var currentTranslation = null;
+      var currentScale = null;
+      $("#zoomButton").click(function(){
+        if ($(this).hasClass('active'))
+        {
+          $(this).removeClass('active');
+          if (currentTranslation == null) currentTranslation = zoom.translate();
+          if (currentScale == null) currentScale = zoom.scale();
+          background.call(zoom = d3.behavior.zoom().on("zoom", null));
+          g.call(force.drag);
+        }
+        else
+        {
+          $(this).addClass('active');
+          background.call(zoom = d3.behavior.zoom().on("zoom", zoomGraph));
+          g.on('mousedown.drag', null);
+        }
+      })
 
       var markerSize = 3;
 

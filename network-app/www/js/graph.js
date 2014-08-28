@@ -34,11 +34,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var playButtonHtml = '<button type="button" class="btn btn-default" id="playButton">' + '<i class="icon-play"></i>' + '</button>'
       var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
       var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
-      $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml);
+      var zoomButtonHtml = '<button type="button" class="btn btn-default btn-lg" id="zoomButton">Zooming</button>'
+      $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml + zoomButtonHtml);
       $("#slider").attr("min", d3properties[0].timeMin);
       $("#slider").attr("max", d3properties[0].timeMax);
       $("#slider").val(Number(d3properties[0].timeMin));
-      $("#timeCount").text('Current: ' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax);
+      $("#timeCount").html('<h6>Current</h6><p>' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax + ' </p>');
+      $("#timeInfo").html('<h6>Time range</h6><p>Start: ' + d3properties[0].timeMin + '<br/>Stop: ' + d3properties[0].timeMax + '  </p>');
 
       var nodes = [],
           edges = [],
@@ -75,7 +77,14 @@ var networkOutputBinding = new Shiny.OutputBinding();
         Zooming the graph
       */
       function zoomGraph() {
-        background.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        if (currentTranslation != null && currentScale != null)
+        {
+          zoom.translate(currentTranslation);
+          zoom.scale(currentScale)
+          currentTranslation = null;
+          currentScale = null;
+        }
+        background.attr("transform", "translate(" +  zoom.translate() + ")scale(" + zoom.scale() + ")");
       }
 
       // remove old svg
@@ -91,9 +100,17 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", "0, 0, " + width + ", " + height)
-        .attr("preserveAspectRatio", "xMidYMid meet")
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+      var x = d3.scale.linear()
+          .domain([0, width])
+          .range([0, width]);
+
+      var y = d3.scale.linear()
+          .domain([0, height])
+          .range([height, 0]);
         
-      var background = svg.append('svg:g').call(d3.behavior.zoom().on("zoom", zoomGraph)).append('g');
+      var background = svg.append('svg:g');
 
       background.append('svg:rect')
         .attr('width', width)
@@ -154,8 +171,26 @@ var networkOutputBinding = new Shiny.OutputBinding();
         }, intervalSeconds*1000);
       }
 
-      var option;
+      var currentTranslation = null;
+      var currentScale = null;
+      $("#zoomButton").click(function(){
+        if ($(this).hasClass('active'))
+        {
+          $(this).removeClass('active');
+          if (currentTranslation == null) currentTranslation = zoom.translate();
+          if (currentScale == null) currentScale = zoom.scale();
+          background.call(zoom = d3.behavior.zoom().on("zoom", null));
+          node.call(force.drag);
+        }
+        else
+        {
+          $(this).addClass('active');
+          background.call(zoom = d3.behavior.zoom().on("zoom", zoomGraph));
+          node.on('mousedown.drag', null);
+        }
+      })
 
+      var option;
       $("#interval").change(function() { 
         if (animationInterval === undefined) return;
         clearInterval(animationInterval);
@@ -328,7 +363,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
             .remove();
       }
 
-      function updateData(time){
+      function updateData(time) {
           // add new nodes
         for (var i = 0; i < verticesActivity.length; i++)
           {

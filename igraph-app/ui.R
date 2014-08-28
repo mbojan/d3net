@@ -49,7 +49,8 @@ shinyUI(
              tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
              conditionalPanel(
                condition="input.outputFormat == 1",
-               reactiveNetwork(outputId = "mainnet")),
+               reactiveNetwork(outputId = "mainnet"),
+               div(id = "player", class="span4 btn-group btn-group-justified")),
              conditionalPanel(
                condition="input.outputFormat == 2")
              #plotOutput("rplot"),
