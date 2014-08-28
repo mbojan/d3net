@@ -98,16 +98,34 @@ shinyServer(function(input, output, session) {
                 selected = "None")
   })
   
+  output$footer <- renderUI({
+    HTML('<div class="span12"><hr/><h4>Info</h4></div>
+        <div class="span12">
+            <div class="span6">
+              Package: d3net<br/>
+              Version: 0<br/>
+              Authors: Michał Bojanowski, Monika Pawluczuk<br/>
+            </div>
+  
+            <div class="span6">
+            <a href="http://www.icm.edu.pl">
+              <img src="img/icm-logo.png" class="img-responsive"/>
+            </a>
+            </div>
+         </div>')
+  })
+  
   # calculate predefined values for layout properties
   no_nodes <- nrow(get.adjacency(data))
-  chargeValue <- round(0.12 * no_nodes - 125)
-  linkDistanceValue <- round(-0.04 * no_nodes + 54)
-  vertexSizeMinValue <- round(-0.008 * no_nodes + 10.5)
+  chargeValue <- min(0, round(0.12 * no_nodes - 125))
+  linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
+  vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
+  
   output$layoutProperties <- renderUI({
     list(
       sliderInput("linkDistance", "Link distance:", 
                   min=0, max=300, value = linkDistanceValue ),
-      sliderInput("charge", "Charge:", 
+      sliderInput("chargeSlider", "Charge:", 
                   min=-500, max=0, value = chargeValue ),
       sliderInput("vertexSize", "Vertex size:", 
                   min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
@@ -160,7 +178,7 @@ shinyServer(function(input, output, session) {
 
     dir = igraph::is.directed(data)
     # d3 graph properties
-    if (is.null(input$charge)) charge <- chargeValue else charge <- input$charge
+    if (is.null(input$chargeSlider)) charge <- chargeValue else charge <- input$chargeSlider
     if (is.null(input$linkDistance)) linkDist <- linkDistanceValue else linkDist <- input$linkDistance
     if (is.null(input$vertexSize[1])) vertexMin <- vertexSizeMinValue else vertexMin <- input$vertexSize[1]
     if (is.null(input$vertexSize[2])) vertexMax <- vertexSizeMinValue*3 else vertexMax <- input$vertexSize[2]

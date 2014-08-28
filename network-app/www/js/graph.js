@@ -75,9 +75,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         Zooming the graph
       */
       function zoomGraph() {
-        svg.attr("transform",
-            "translate(" + d3.event.translate + ")"
-            + " scale(" + d3.event.scale + ")");
+        background.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
       }
 
       // remove old svg
@@ -95,7 +93,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .attr("viewBox", "0, 0, " + width + ", " + height)
         .attr("preserveAspectRatio", "xMidYMid meet")
         
-      var background = svg.append('svg:g').call(d3.behavior.zoom().on("zoom", zoomGraph));
+      var background = svg.append('svg:g').call(d3.behavior.zoom().on("zoom", zoomGraph)).append('g');
 
       background.append('svg:rect')
         .attr('width', width)

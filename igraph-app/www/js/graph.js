@@ -79,6 +79,13 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .size([width, height])
         .start();
       
+      /**
+        Zooming the graph
+      */
+      function zoomGraph() {
+        background.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      }
+
       //remove the old graph
       var svg = d3.select(el).select("svg");
       svg.remove();
@@ -92,10 +99,18 @@ var networkOutputBinding = new Shiny.OutputBinding();
       Add svg properties to become responsive (adjusting width and height)
       */
       svg.attr("id", "graph")
+        .attr("pointer-events", "all")
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", "0, 0, " + width + ", " + height)
         .attr("preserveAspectRatio", "xMidYMid meet");
+
+      var background = svg.append('svg:g').call(d3.behavior.zoom().on("zoom", zoomGraph)).append('g');
+
+      background.append('svg:rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'white');
 
       var graph = $("#graph"),
           aspect = graph.width() / graph.height(),
@@ -124,7 +139,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       
       // add the links and the arrows
-      var path = svg.selectAll("path")
+      var path = background.selectAll("path")
           .data(edges)
         .enter().append("svg:path")
           .attr("class", "link")
@@ -144,7 +159,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         |____circle
         |____label (showing on mouseover)
       */
-      var vertexes = svg.selectAll("g")
+      var vertexes = background.selectAll("g")
           .data(nodes);
 
       var g = vertexes.enter()

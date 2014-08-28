@@ -97,6 +97,23 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  output$footer <- renderUI({
+    HTML('<div class="span12"><hr/><h4>Info</h4></div>
+        <div class="span12">
+            <div class="span6">
+              Package: d3net<br/>
+              Version: 0<br/>
+              Authors: Michał Bojanowski, Monika Pawluczuk<br/>
+            </div>
+  
+            <div class="span6">
+            <a href="http://www.icm.edu.pl">
+              <img src="img/icm-logo.png" class="img-responsive"/>
+            </a>
+            </div>
+         </div>')
+  })
+  
   edgesReflection <- reactive({
     return(rep(NA,length(get.edge.activity(data, as.spellList = TRUE)$tail)))
   })
