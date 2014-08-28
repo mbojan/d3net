@@ -7,8 +7,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
     },
     
     renderValue: function(el, data) {
-      $("#color").colorpicker();
-
+      
       /**
       Used variables 
       */

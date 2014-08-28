@@ -66,7 +66,7 @@ shinyServer(function(input, output, session) {
   }
   
   output$edge <- renderUI({
-    if (inherits(data, "igraph") && is.weighted(data))
+    if (is.weighted(data))
       l <- c("None" = "none","Betweenness" = "betweenness", "Weight" = "weight")
     else
       l <- c("None" = "none","Betweenness" = "betweenness")
@@ -96,6 +96,21 @@ shinyServer(function(input, output, session) {
                 label = "Vertices radius reflect", 
                 choices = c("None", "Degree", "Betweenness", "Closeness", numericChoices),
                 selected = "None")
+  })
+  
+  # calculate predefined values for layout properties
+  no_nodes <- nrow(get.adjacency(data))
+  chargeValue <- round(0.12 * no_nodes - 125)
+  linkDistanceValue <- round(-0.04 * no_nodes + 54)
+  vertexSizeMinValue <- round(-0.008 * no_nodes + 10.5)
+  output$layoutProperties <- renderUI({
+    list(
+      sliderInput("linkDistance", "Link distance:", 
+                  min=0, max=300, value = linkDistanceValue ),
+      sliderInput("charge", "Charge:", 
+                  min=-500, max=0, value = chargeValue ),
+      sliderInput("vertexSize", "Vertex size:", 
+                  min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
   })
   
   edgesReflection <- reactive({
@@ -143,20 +158,21 @@ shinyServer(function(input, output, session) {
       v_attributes$Betweenness <- as.vector(betweenness(data))
       v_attributes$Degree <- as.vector(degree(data))
 
-    # full edges data
-    #e_attributes <- edge.attributes(data)
-    #e_attributes$Betweenness <- as.vector(edge.betweenness(data))
     dir = igraph::is.directed(data)
     # d3 graph properties
-    d3properties <- matrix(c(input$charge,
-                             input$linkDistance, 
+    if (is.null(input$charge)) charge <- chargeValue else charge <- input$charge
+    if (is.null(input$linkDistance)) linkDist <- linkDistanceValue else linkDist <- input$linkDistance
+    if (is.null(input$vertexSize[1])) vertexMin <- vertexSizeMinValue else vertexMin <- input$vertexSize[1]
+    if (is.null(input$vertexSize[2])) vertexMax <- vertexSizeMinValue*3 else vertexMax <- input$vertexSize[2]
+    d3properties <- matrix(c(charge,
+                             linkDist,
+                             vertexMin,
+                             vertexMax,
                              input$linkStrength,
-                             input$vertexSize[1],
-                             input$vertexSize[2],
                              input$colorScale,
                              as.numeric(dir)), ncol = 7)
-    colnames(d3properties) <- c("charge", "linkDistance", "linkStrength", "vertexSizeMin", 
-                                "vertexSizeMax", "color", "directed")
+    colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", 
+                                "vertexSizeMax", "linkStrength", "color", "directed")
     
     type <- "igraph"
     graphData <- list(vertices = nodes, # vertices

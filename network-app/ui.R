@@ -13,6 +13,17 @@ progressBar <- function ()
        <input id="slider" type ="range" min ="0" max="10" step ="1" value ="0" disabled ="TRUE" style="width: 100%;"/>
        </div>')
 }
+
+alert <- function()
+{
+  HTML('<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert">
+    <span aria-hidden="true">&times;</span>
+    <span class="sr-only"></span></button>
+      <strong>Warning!</strong> Changing settings resets the graph.
+    </div>')
+}
+
 shinyUI(
   fluidPage(
     fluidRow(h1("d3net")),
@@ -20,15 +31,10 @@ shinyUI(
       column(2, 
              h4("d3 properties"),
              sliderInput("interval", "Time interval (seconds):",
-                         min=1, max=10, value=4),
-             sliderInput("charge", "Charge:", 
-                         min=-500, max=0, value=-100),
-             sliderInput("linkDistance", "Link distance:", 
-                         min=0, max=300, value=50),
+                         min=0.1, max=5, step=0.1, value=3.0),
+             htmlOutput("layoutProperties"),
              sliderInput("linkStrength", "Link strength:", 
                          min=0, max=1, value=0.1),
-             sliderInput("vertexSize", "Vertex size:", 
-                         min=1, max=100, value = c(5,20)),
              selectizeInput("colorScale", "Choose color:",
                          choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
                                      "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
@@ -37,10 +43,7 @@ shinyUI(
       ),
       column(2, 
              h4("R properties"),
-             htmlOutput("edge"),
-             htmlOutput("vertexColor"),
-             htmlOutput("vertexRadius"),
-             htmlOutput("tooltipAttr")
+             htmlOutput("rProperties")
              ),
       column(8,
              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/tipsy.css")),
@@ -51,9 +54,9 @@ shinyUI(
                  p("Calculation in progress.."), 
                  img(src="img/ajax-loader.gif")),
              reactiveNetwork(outputId = "mainnet"),
-             div(class="span12",
-                 progressBar(),
-                 div(id = "player", class="span4 btn-group btn-group-justified"))
+             div(progressBar(),
+                 div(id = "player", class="span4 btn-group btn-group-justified"),
+                 div(id = "timeCount", class="span4"))
              #plotOutput("rplot"),
              #downloadButton("pngDownload","Download plot as .png"),
              #downloadButton("pdfDownload","Download plot as .pdf"))
