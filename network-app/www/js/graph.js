@@ -71,6 +71,15 @@ var networkOutputBinding = new Shiny.OutputBinding();
           return parseInt(vertex); 
         else return acc}, 0) : 0;
 
+      /**
+        Zooming the graph
+      */
+      function zoomGraph() {
+        svg.attr("transform",
+            "translate(" + d3.event.translate + ")"
+            + " scale(" + d3.event.scale + ")");
+      }
+
       // remove old svg
       var svg = d3.select(el).select("svg");
       svg.remove();
@@ -80,10 +89,18 @@ var networkOutputBinding = new Shiny.OutputBinding();
       //append a new one
       svg = d3.select(el).append("svg");
       svg.attr("id", "graph")
+        .attr("pointer-events", "all")
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", "0, 0, " + width + ", " + height)
-        .attr("preserveAspectRatio", "xMidYMid meet");
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        
+      var background = svg.append('svg:g').call(d3.behavior.zoom().on("zoom", zoomGraph));
+
+      background.append('svg:rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'white');
 
       var graph = $("#graph"),
           aspect = graph.width() / graph.height(),
@@ -105,6 +122,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .size([width, height])
           .on("tick", tick);
 
+
       if (d3properties[0].directed == 1)
       {
         var markerSize = 7;
@@ -121,8 +139,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .attr("d", "M0,-5L10,0L0,5");
       }
 
-      var node = svg.selectAll("circle");
-      var edge = svg.append("svg:g").selectAll("path");
+      var node = background.selectAll("circle");
+      var edge = background.append("svg:g").selectAll("path");
 
       var animationInterval;
       var time = Number(d3properties[0].timeMin) + 1;
@@ -138,18 +156,25 @@ var networkOutputBinding = new Shiny.OutputBinding();
         }, intervalSeconds*1000);
       }
 
+      var option;
+
       $("#interval").change(function() { 
         if (animationInterval === undefined) return;
         clearInterval(animationInterval);
-        runInterval(parseInt($("#interval").val()));
+        if (option == 1) runInterval(parseInt($("#interval").val()));
       });
 
+      /**
+        Functions for play/stop/replay buttons
+      */
       $("#playButton").click(function(){
+        option = 1;
         force.start();
         runInterval(parseInt($("#interval").val()));
       })
 
       $("#pauseButton").click(function(){
+        option = 2;
         force.stop();
         clearInterval(animationInterval);
       })
@@ -165,6 +190,9 @@ var networkOutputBinding = new Shiny.OutputBinding();
         runInterval(parseInt($("#interval").val()));
       })
 
+      /**
+      Function positioning nodes and edges on every layout change
+      */
       function tick() {
 
         node.each( function(d, i){
@@ -208,10 +236,15 @@ var networkOutputBinding = new Shiny.OutputBinding();
           });
 
         node
+            //.attr("x", Math.random() * width)
+            //.attr("y", Math.random() * height)
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
       }
 
+      /**
+      Function adds new nodes and edges data to d3 lib
+      */
       function redraw() {
         var baseDuration = parseInt($("#interval").val())*125;
         force.start();
@@ -232,7 +265,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
             Math.max(d3properties[0].vertexSizeMin, d3properties[0].vertexSizeMax*(d.property/maxVertexProperty)) : d3properties[0].vertexSizeMin; } );
 
         node.call(force.drag);
-
+        
         /**
         Creating tooltip
         */
@@ -293,7 +326,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
           .transition()
             .duration(baseDuration)
             .ease("linear")
-            .style("stroke-opacity", 0.001)
+            .style("stroke-opacity", 0.01)
             .remove();
       }
 
@@ -314,7 +347,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
               "terminus" : verticesActivity[i].terminus,
               "onset" : verticesActivity[i].onset,
               "property" : radiusProperty,
-              "color" : projectionColors[colorProperty]
+              "color" : projectionColors[colorProperty],
             });
           }
         // remove old nodes
