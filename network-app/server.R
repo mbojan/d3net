@@ -131,24 +131,21 @@ shinyServer(function(input, output, session) {
     
     # edges acitivity matrix
     connectionsIdx <- get.edge.activity(data, as.spellList = TRUE)[c("onset", "terminus", "tail", "head")]
-    for (i in 1:nrow(connectionsIdx)) 
-    {
-      # remove onset -infitiy values
-      if (connectionsIdx[i,]$onset == -Inf)
-        connectionsIdx[i,]$onset <-
-          max(nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$tail),]$onset, 
-            nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$head),]$onset)
-      
-      # remove terminus infitiy values
-      if (connectionsIdx[i,]$terminus == Inf)
-        connectionsIdx[i,]$terminus <-
-          min(nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$tail),]$terminus, 
-            nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$head),]$terminus)
-      
-      # decrement indexes as javascript counts from 0, not 1
-      connectionsIdx[i,]$tail <- connectionsIdx[i,]$tail - 1
-      connectionsIdx[i,]$head <- connectionsIdx[i,]$head - 1
-    }
+    # remove onset -Inf values
+    i <- which( connectionsIdx$onset == -Inf )
+    mv.tail <- match( connectionsIdx$tail[i], nodesActivity$vertex.id )
+    mv.head <- match( connectionsIdx$head[i], nodesActivity$vertex.id )
+    connectionsIdx$onset[i] <- with(nodesActivity, pmax( onset[mv.tail], onset[mv.head]))
+    # remove terminus Inf values
+    i <- which( connectionsIdx$terminus == Inf )
+    mv.tail <- match( connectionsIdx$tail[i], nodesActivity$vertex.id )
+    mv.head <- match( connectionsIdx$head[i], nodesActivity$vertex.id )
+    connectionsIdx$terminus[i] <- with(nodesActivity, pmin( terminus[mv.tail], terminus[mv.head]))
+    # decrement indexes as javascript counts from 0, not 1
+    connectionsIdx$tail <- connectionsIdx$tail - 1
+    connectionsIdx$head <- connectionsIdx$head - 1
+    # clean-up
+    rm(i, mv.head, mv.tail)
     
     # what edges should reflect
     edges_property <- matrix(edgesReflection())
