@@ -46,7 +46,8 @@ shinyUI(
              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/tipsy.css")),
              tags$head(tags$script(src="js/graph.js")),
              tags$head(tags$script(src="js/jquery.tipsy.js")),
-             tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
+             #tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
+             tags$head(tags$script(src="js/d3.min.js")),
              conditionalPanel(
                condition="input.outputFormat == 1",
                reactiveNetwork(outputId = "mainnet"),

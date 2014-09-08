@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
   
   # calculate predefined values for layout properties
   no_nodes <- nrow(get.adjacency(data))
-  chargeValue <- min(0, round(0.12 * no_nodes - 125))
+  chargeValue <- min(-1, round(0.12 * no_nodes - 125))
   linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
   vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
   

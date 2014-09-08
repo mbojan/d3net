@@ -67,16 +67,16 @@ shinyServer(function(input, output, session) {
   
   # calculate predefined values for layout properties
   no_nodes <- length(network.vertex.names(data))
-  chargeValue <- min(0, round(0.12 * no_nodes - 125))
+  chargeValue <- min(-1, round(0.12 * no_nodes - 125))
   linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
   vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
 
   output$layoutProperties <- renderUI({
     list(
       sliderInput("linkDistance", "Link distance:", 
-                min=0, max=300, value = linkDistanceValue ),
+                min=0, max=300, step=5, value = linkDistanceValue ),
       sliderInput("charge", "Charge:", 
-                min=-500, max=0, value = chargeValue ),
+                min=-500, max=0, step=5, value = chargeValue ),
       sliderInput("vertexSize", "Vertex size:", 
                   min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
   })
@@ -155,7 +155,9 @@ shinyServer(function(input, output, session) {
     colnames(connectionsIdx) <- c("onset", "terminus", "source", "target", "property")
     
     # format data for javascript
+    nodesActivity <- apply(nodesActivity, 1:2, as.character)
     nodesActivity <- as.matrix(nodesActivity)
+    connectionsIdx <- apply(connectionsIdx, 1:2, as.character)
     connectionsIdx <- as.matrix(connectionsIdx)
     v_attributes <- list()
       
@@ -187,8 +189,8 @@ shinyServer(function(input, output, session) {
                              as.numeric(timeRangeMax)), ncol = 9)
     colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", "vertexSizeMax", 
                                 "linkStrength", "color", "directed", "timeMin", "timeMax")
-
     type <- "networkDynamic"
+    
     graphData <- list(vertices = nodes, # vertices
                       verticesActivity = nodesActivity, # vertices time stamps
                       links = connectionsIdx, # edges
@@ -199,6 +201,7 @@ shinyServer(function(input, output, session) {
                       edgeThickness = input$edge, # attribute that edge thickness should reflect
                       verticesAttributes = v_attributes, # vertex attributes data
                       d3 = d3properties)
+    
     graphData
   })
 })

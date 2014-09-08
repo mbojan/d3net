@@ -10,7 +10,7 @@ reactiveNetwork <- function (outputId)
 progressBar <- function ()
 {
   HTML('<div id = "progressBar" class="span12" style="padding: 0 1em 0 1em;">
-       <input id="slider" type ="range" min ="0" max="10" step ="1" value ="0" disabled ="TRUE" style="width: 100%;"/>
+       <input id="slider" type ="range" min ="0" max="10" step ="1" value ="0" style="width: 100%;"/>
        </div>')
 }
 
@@ -29,7 +29,7 @@ shinyUI(
     fluidRow(h1("d3net")),
     fluidRow(
       column(4,
-             column(6, 
+             column(6, id = "layoutd3",
                     h4("d3 properties"),
                     sliderInput("interval", "Time interval (seconds):",
                                 min=0.1, max=5, step=0.1, value=3.0),
@@ -42,7 +42,7 @@ shinyUI(
                                                "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
                                                "#17becf" = 9), selected = 0)
              ),
-             column(6, 
+             column(6, id = "layoutR",
                     h4("R properties"),
                     htmlOutput("rProperties")
              ),
@@ -52,7 +52,8 @@ shinyUI(
              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "css/tipsy.css")),
              tags$head(tags$script(src="js/graph.js")),
              tags$head(tags$script(src="js/jquery.tipsy.js")),
-             tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
+             #tags$head(tags$script(src="http://d3js.org/d3.v3.min.js")),
+             tags$head(tags$script(src="js/d3.min.js")),
              div(class = "busy",  
                  p("Calculation in progress.."), 
                  img(src="img/ajax-loader.gif")),
