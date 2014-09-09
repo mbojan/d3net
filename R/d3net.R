@@ -31,7 +31,9 @@ d3net.igraph <- function(dataset)
   require(igraph)
   .GlobalEnv$.d3net.dataset <- dataset
   on.exit(rm(.d3net.dataset, envir=.GlobalEnv))
-  shiny::runApp( system.file("igraph-app", package="d3net") )
+  appDir <- system.file("igraph-app", package="d3net")
+  print(appDir)
+  shiny::runApp( appDir )
 }
 
 
