@@ -46,7 +46,7 @@ d3net.networkDynamic <- function(dataset)
   require(networkDynamic)
   .GlobalEnv$.d3net.dataset <- dataset
   on.exit(rm(.d3net.dataset, envir=.GlobalEnv))
-  shiny::runApp("network-app")
+  shiny::runApp( system.file("network-app", package="d3net") )
 }
 
 

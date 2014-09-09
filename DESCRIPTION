@@ -6,7 +6,7 @@ Authors@R: c(
     email="michal2992@gmail.com",
     role=c("aut", "cre")),
     person("Monika", "Pawluczuk",
-    email="",
+    email="pawluczuk.monika@gmail.com",
     role=c("aut", "cre")))
 Description: Framework for creating Shiny applications for static and dynamic
     network visualizations using d3js
