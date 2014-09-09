@@ -197,6 +197,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       function reset(){
         if ($(this).attr("id") === "interval")
         {
+          currentInterval = parseInt($("#interval").val());
           if (animationInterval === undefined) return;
           clearInterval(animationInterval);
           if (option == 1) runInterval(currentInterval);
@@ -238,11 +239,30 @@ var networkOutputBinding = new Shiny.OutputBinding();
         force.stop();
         clearInterval(animationInterval);
       })
+      $( document ).off('keypress').keypress(function(event){
+        if ( event.keyCode === 32 )
+        {
+          if (option === 1)
+          {
+            option = 2;
+            $("#pauseButton").addClass('active');
+            $("#playButton").removeClass('active');
+
+            force.stop();
+            clearInterval(animationInterval);
+          }
+          else if (option === 2)
+          {
+            option = 1;
+            $("#playButton").addClass('active');
+            $("#pauseButton").removeClass('active');
+            force.start();
+            runInterval(currentInterval);
+          }
+        }
+      });
 
       $("#replayButton").click(reset);
-      $("#interval").change(function() {
-        currentInterval = parseInt($("#interval").val());
-      })
       $("#layoutd3").find("input").change(reset);
       $("#layoutR").find("input").change(reset);
 

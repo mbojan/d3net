@@ -74,9 +74,9 @@ shinyServer(function(input, output, session) {
   output$layoutProperties <- renderUI({
     list(
       sliderInput("linkDistance", "Link distance:", 
-                min=0, max=300, step=5, value = linkDistanceValue ),
+                min=0, max=300, value = linkDistanceValue ),
       sliderInput("charge", "Charge:", 
-                min=-500, max=0, step=5, value = chargeValue ),
+                min=-500, max=0, value = chargeValue ),
       sliderInput("vertexSize", "Vertex size:", 
                   min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
   })
