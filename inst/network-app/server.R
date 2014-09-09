@@ -101,9 +101,9 @@ shinyServer(function(input, output, session) {
     HTML('<div class="span12"><hr/><h4>Info</h4></div>
         <div class="span12">
             <div class="span6">
-              Package: d3net<br/>
-              Version: 0<br/>
-              Authors: Michał Bojanowski, Monika Pawluczuk<br/>
+              Package: ' + packageDescription("d3net")$Package + '<br/>
+              Version: ' + packageDescription("d3net")$Version + '<br/>
+              Authors: ' + packageDescription("d3net")$Author + '<br/>
             </div>
   
             <div class="span6">

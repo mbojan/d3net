@@ -31,9 +31,7 @@ d3net.igraph <- function(dataset)
   require(igraph)
   .GlobalEnv$.d3net.dataset <- dataset
   on.exit(rm(.d3net.dataset, envir=.GlobalEnv))
-  appDir <- system.file("igraph-app", package="d3net")
-  print(appDir)
-  shiny::runApp( appDir )
+  shiny::runApp( system.file("igraph-app", package="d3net") )
 }
 
 
@@ -55,6 +53,7 @@ d3net.networkDynamic <- function(dataset)
 #' @method d3net network
 #' @rdname d3net
 #' @import intergraph
+#' @import network
 #' @export
 d3net.network <- function(dataset)
 {
