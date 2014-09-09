@@ -254,7 +254,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         timeout = setTimeout(function() {
           cleanData(userTime);
         }, 150);
-        time = userTime;
+        time = userTime + 1;
         // if the loop was on, continue
         if (option == 1) runInterval(currentInterval);
         $("#timeCount").html('<b>Current</b> ' + userTime + ' / ' + d3properties[0].timeMax);
@@ -330,6 +330,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       Function passes new nodes and edges data to d3 lib
       */
       function redraw() {
+        console.log(edges)
         var baseDuration = currentInterval*125;
         force.start();
         node = node.data(nodes);
