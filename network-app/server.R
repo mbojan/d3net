@@ -67,10 +67,10 @@ shinyServer(function(input, output, session) {
   
   # calculate predefined values for layout properties
   no_nodes <- length(network.vertex.names(data))
-  chargeValue <- round(0.12 * no_nodes - 125)
-  linkDistanceValue <- round(-0.04 * no_nodes + 54)
-  vertexSizeMinValue <- round(-0.008 * no_nodes + 10.5)
-  
+  chargeValue <- min(-1, round(0.12 * no_nodes - 125))
+  linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
+  vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
+
   output$layoutProperties <- renderUI({
     list(
       sliderInput("linkDistance", "Link distance:", 
@@ -97,6 +97,23 @@ shinyServer(function(input, output, session) {
     )
   })
   
+  output$footer <- renderUI({
+    HTML('<div class="span12"><hr/><h4>Info</h4></div>
+        <div class="span12">
+            <div class="span6">
+              Package: d3net<br/>
+              Version: 0<br/>
+              Authors: Michał Bojanowski, Monika Pawluczuk<br/>
+            </div>
+  
+            <div class="span6">
+            <a href="http://www.icm.edu.pl">
+              <img src="img/icm-logo.png" class="img-responsive"/>
+            </a>
+            </div>
+         </div>')
+  })
+  
   edgesReflection <- reactive({
     return(rep(NA,length(get.edge.activity(data, as.spellList = TRUE)$tail)))
   })
@@ -114,24 +131,21 @@ shinyServer(function(input, output, session) {
     
     # edges acitivity matrix
     connectionsIdx <- get.edge.activity(data, as.spellList = TRUE)[c("onset", "terminus", "tail", "head")]
-    for (i in 1:nrow(connectionsIdx)) 
-    {
-      # remove onset -infitiy values
-      if (connectionsIdx[i,]$onset == -Inf)
-        connectionsIdx[i,]$onset <-
-          max(nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$tail),]$onset, 
-            nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$head),]$onset)
-      
-      # remove terminus infitiy values
-      if (connectionsIdx[i,]$terminus == Inf)
-        connectionsIdx[i,]$terminus <-
-          min(nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$tail),]$terminus, 
-            nodesActivity[which(nodesActivity$vertex.id == connectionsIdx[i,]$head),]$terminus)
-      
-      # decrement indexes as javascript counts from 0, not 1
-      connectionsIdx[i,]$tail <- connectionsIdx[i,]$tail - 1
-      connectionsIdx[i,]$head <- connectionsIdx[i,]$head - 1
-    }
+    # remove onset -Inf values
+    i <- which( connectionsIdx$onset == -Inf )
+    mv.tail <- match( connectionsIdx$tail[i], nodesActivity$vertex.id )
+    mv.head <- match( connectionsIdx$head[i], nodesActivity$vertex.id )
+    connectionsIdx$onset[i] <- with(nodesActivity, pmax( onset[mv.tail], onset[mv.head]))
+    # remove terminus Inf values
+    i <- which( connectionsIdx$terminus == Inf )
+    mv.tail <- match( connectionsIdx$tail[i], nodesActivity$vertex.id )
+    mv.head <- match( connectionsIdx$head[i], nodesActivity$vertex.id )
+    connectionsIdx$terminus[i] <- with(nodesActivity, pmin( terminus[mv.tail], terminus[mv.head]))
+    # decrement indexes as javascript counts from 0, not 1
+    connectionsIdx$tail <- connectionsIdx$tail - 1
+    connectionsIdx$head <- connectionsIdx$head - 1
+    # clean-up
+    rm(i, mv.head, mv.tail)
     
     # what edges should reflect
     edges_property <- matrix(edgesReflection())
@@ -141,7 +155,9 @@ shinyServer(function(input, output, session) {
     colnames(connectionsIdx) <- c("onset", "terminus", "source", "target", "property")
     
     # format data for javascript
+    nodesActivity <- apply(nodesActivity, 1:2, as.character)
     nodesActivity <- as.matrix(nodesActivity)
+    connectionsIdx <- apply(connectionsIdx, 1:2, as.character)
     connectionsIdx <- as.matrix(connectionsIdx)
     v_attributes <- list()
       
@@ -173,8 +189,8 @@ shinyServer(function(input, output, session) {
                              as.numeric(timeRangeMax)), ncol = 9)
     colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", "vertexSizeMax", 
                                 "linkStrength", "color", "directed", "timeMin", "timeMax")
-
     type <- "networkDynamic"
+    
     graphData <- list(vertices = nodes, # vertices
                       verticesActivity = nodesActivity, # vertices time stamps
                       links = connectionsIdx, # edges
@@ -185,6 +201,7 @@ shinyServer(function(input, output, session) {
                       edgeThickness = input$edge, # attribute that edge thickness should reflect
                       verticesAttributes = v_attributes, # vertex attributes data
                       d3 = d3properties)
+    
     graphData
   })
 })

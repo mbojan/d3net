@@ -28,6 +28,9 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var minColor = 'lightyellow';
       var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
       var scale = d3.scale.linear().range([colorScalePicker(color), minColor]);
+
+      var zoomButtonHtml = '<button type="button" class="btn btn-default btn-lg" id="zoomButton">Zooming</button>'
+      $("#player").html(zoomButtonHtml);
       
       var stringsForColoring = [];
       var projectionColors = {};
@@ -79,6 +82,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
         .size([width, height])
         .start();
       
+
+
       //remove the old graph
       var svg = d3.select(el).select("svg");
       svg.remove();
@@ -92,10 +97,18 @@ var networkOutputBinding = new Shiny.OutputBinding();
       Add svg properties to become responsive (adjusting width and height)
       */
       svg.attr("id", "graph")
+        .attr("pointer-events", "all")
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", "0, 0, " + width + ", " + height)
         .attr("preserveAspectRatio", "xMidYMid meet");
+
+      var background = svg.append('svg:g');
+
+      background.append('svg:rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'white');
 
       var graph = $("#graph"),
           aspect = graph.width() / graph.height(),
@@ -106,6 +119,39 @@ var networkOutputBinding = new Shiny.OutputBinding();
           graph.attr("width", targetWidth);
           graph.attr("height", Math.round(targetWidth / aspect));
       }).trigger("resize");
+
+      /**
+        Zooming the graph
+      */
+      function zoomGraph() {
+        if (currentTranslation != null && currentScale != null)
+        {
+          zoom.translate(currentTranslation);
+          zoom.scale(currentScale)
+          currentTranslation = null;
+          currentScale = null;
+        }
+        background.attr("transform", "translate(" +  zoom.translate() + ")scale(" + zoom.scale() + ")");
+      }
+
+      var currentTranslation = null;
+      var currentScale = null;
+      $("#zoomButton").click(function(){
+        if ($(this).hasClass('active'))
+        {
+          $(this).removeClass('active');
+          if (currentTranslation == null) currentTranslation = zoom.translate();
+          if (currentScale == null) currentScale = zoom.scale();
+          background.call(zoom = d3.behavior.zoom().on("zoom", null));
+          g.call(force.drag);
+        }
+        else
+        {
+          $(this).addClass('active');
+          background.call(zoom = d3.behavior.zoom().on("zoom", zoomGraph));
+          g.on('mousedown.drag', null);
+        }
+      })
 
       var markerSize = 3;
 
@@ -124,7 +170,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       
       // add the links and the arrows
-      var path = svg.selectAll("path")
+      var path = background.selectAll("path")
           .data(edges)
         .enter().append("svg:path")
           .attr("class", "link")
@@ -144,7 +190,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         |____circle
         |____label (showing on mouseover)
       */
-      var vertexes = svg.selectAll("g")
+      var vertexes = background.selectAll("g")
           .data(nodes);
 
       var g = vertexes.enter()
