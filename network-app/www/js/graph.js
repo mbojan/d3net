@@ -330,7 +330,6 @@ var networkOutputBinding = new Shiny.OutputBinding();
       Function passes new nodes and edges data to d3 lib
       */
       function redraw() {
-        console.log(edges)
         var baseDuration = currentInterval*125;
         force.start();
         node = node.data(nodes);
