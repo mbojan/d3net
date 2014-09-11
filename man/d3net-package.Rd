@@ -9,10 +9,10 @@ visualizations using D3.js JavaScript library (see more at: http://d3js.org).
 }
 \details{
 Visualisation is a force-directed layout interactive SVG graph, which nodes and edges
-can be dragged and changed dynamically do reflect network properties. The graph itself is also
+can be dragged and changed dynamically to reflect network properties. The graph itself is also
 zoomable. For dynamic networks, player controls has been provided.
 }
 \author{
-Michal Bojanowski, Monika Pawluczuk
+Michal Bojanowski \email{michal2992@gmail.com}, Monika Pawluczuk \email{pawluczuk.monika@gmail.com}
 }
 

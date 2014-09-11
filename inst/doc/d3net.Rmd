@@ -44,7 +44,15 @@ Those graph elements can reflect object properties:
 
 ## igraph and network objects visualisation
 
+Static network object are visualised with the properties described above. 
+
+You can change d3 and R properties, zoom the graph and drag the nodes. To see all the details on the tooltip, simply move your mouse over the node.
+
 ## networkDynamic objects visualisation
+
+Comparing to static networks, dynamic network visualisation has few extra controls. In `d3 properties` there's time interval control, by default set to `3000ms`. It states how fast does the timepoint last during animation. 
+
+Animating the graph is available through the controls below the graph. Control buttons enable to play, pause or replay the animation, user can also move the slider's thumb to change the timepoint.
 
 ## Large networks
 

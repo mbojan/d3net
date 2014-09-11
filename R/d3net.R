@@ -2,19 +2,13 @@
 #' 
 #' D3net application creates a visualisation of dynamic or static network. Graph layout has some
 #' predefined properties that can be changed through the controls in the app. 
-#' To launch the shiny app use functions described below. See Details for more information.
-#'
-#' D3net application creates a visualisation of dynamic or static network with some
-#' predefined properties. User may change these properties through 
-#' the available controls in 'd3 properties' section.
+#' See sections below for more information.
+#' To launch the shiny app use functions described below. 
 #' 
 #' @section D3.js properties:
 #' Link distance, charge and vertex size are calculated depending on total number of nodes.
-#' To find out more about force-directed layout and its properties that was used for these 
-#' visualisations, 
-#' refer to https://github.com/mbostock/d3/wiki/Force-Layout.
 #' 
-#' @section R properties
+#' @section R properties:
 #' Vertices and edges properties of the visualised object can be reflected as well.
 #' Controls in 'R properties' section enable this.
 #' Logical and character network's vertices properties can be reflected by color nodes, 
