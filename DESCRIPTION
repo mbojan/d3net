@@ -10,15 +10,17 @@ Authors@R: c(
     role=c("aut", "cre")))
 Description: Framework for creating Shiny applications for static and dynamic
     network visualizations using d3js
-Depends:
+Depends: 
     R (>= 3.1.1)
-Imports:
+Imports: 
     igraph,
     shiny,
     intergraph,
     networkDynamic
-Suggests:
+Suggests: 
     testthat,
-    roxygen2
+    roxygen2,
+    knitr
 License: GPL-2
 LazyData: true
+VignetteBuilder: knitr

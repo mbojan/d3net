@@ -1,8 +1,14 @@
-#' Visualizing networks using d3js and Shiny
+#' Visualizing networks using D3.js and Shiny
 #'
 #'Framework for creating Shiny applications for static and dynamic network
-#'visualizations using d3js	
+#'visualizations using D3.js JavaScript library (see more at: http://d3js.org).
+#'
+#'Visualisation is a force-directed layout interactive SVG graph, which nodes and edges 
+#'can be dragged and changed dynamically do reflect network properties. The graph itself is also 
+#'zoomable. For dynamic networks, player controls has been provided.
+#'
 #'
 #' @name d3net-package
+#' @author Michal Bojanowski, Monika Pawluczuk
 #' @docType package
 NULL
