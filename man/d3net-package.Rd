@@ -5,7 +5,7 @@
 \title{Visualizing networks using D3.js and Shiny}
 \description{
 Framework for creating Shiny applications for static and dynamic network
-visualizations using D3.js JavaScript library (see more at: http://d3js.org).
+visualizations using D3.js JavaScript library.
 }
 \details{
 Visualisation is a force-directed layout interactive SVG graph, which nodes and edges
@@ -14,5 +14,8 @@ zoomable. For dynamic networks, player controls has been provided.
 }
 \author{
 Michal Bojanowski \email{michal2992@gmail.com}, Monika Pawluczuk \email{pawluczuk.monika@gmail.com}
+}
+\seealso{
+\url{http://d3js.org}
 }
 

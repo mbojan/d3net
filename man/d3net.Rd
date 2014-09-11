@@ -40,7 +40,7 @@ Link distance, charge and vertex size are calculated depending on total number o
 \section{R properties}{
 
 Vertices and edges properties of the visualised object can be reflected as well.
-Controls in 'R properties' section enable this.
+Controls in \code{R properties} section enable this.
 Logical and character network's vertices properties can be reflected by color nodes,
 numeric ones by the size of the node. Edge properties can be reflected by edge thickness.
 All of the available properties may be added to the tooltip information,
