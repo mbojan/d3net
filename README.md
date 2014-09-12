@@ -77,9 +77,3 @@ d3net(harry_potter_support)
 ## See also
 * [D3.js library](www.d3js.org)
 * [Shiny framework](www.shiny.rstudio.com)
-=======
-d3net
-=====
-
-Framework for creating Shiny applications for network visualization using d3js
->>>>>>> 0edffe4e748e4ebd8989b7b262faefa1826d1151
