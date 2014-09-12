@@ -26,11 +26,50 @@ You can download `d3net` package at https://github.com/mbojan/d3net. To install 
         install.packages("d3net.zip", repos = NULL)
 
         # Remove the package after installation
-        unlink("devtools.zip")
+        unlink("d3net.zip")
         ```
+        
 ## Package functions
 
 Currently methods are implemented for objects of class "igraph", "network" and "networkDynamic".
 
 To launch application:
-`d3net(dataset)` where `dataset` is R igraph, network or networkDynamic object
+```R
+library(d3net)
+d3net(dataset)
+```
+where `dataset` is R igraph, network or networkDynamic object
+
+## Examples
+
+To launch examples, use the example datasets provided for each object type.
+
+igraph
+
+```R
+library(igraphdata)
+data(karate)
+d3net(karate)
+```
+
+--------
+
+network
+
+```R
+library(network)
+data(flo)
+#create network object from sample data
+nflo <- network(flo, directed = FALSE)
+d3net(nflo)
+```
+
+--------
+
+networkDynamic
+
+```R
+library(networkDynamicData)
+data(harry_potter_support)
+d3net(harry_potter_support)
+```
