@@ -73,3 +73,7 @@ library(networkDynamicData)
 data(harry_potter_support)
 d3net(harry_potter_support)
 ```
+
+## See also
+* [D3.js library](www.d3js.org)
+* [Shiny framework](www.shiny.rstudio.com)
