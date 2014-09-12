@@ -1,0 +1,96 @@
+---
+title: "Visualising with d3net"
+author: "Michal Bojanowski, Monika Pawluczuk"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Visualising with d3net}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+Package d3net provides visualisation for networks, by creating a Shiny application
+with interactive SVG graph.
+
+## D3.js properties
+The graph is being generated based on R object data using JavaScript library D3.js. For more information, visit page: [d3js.org](http://d3js.org). Application is using force-directed layout for the graph. It's properties can be changed using the controls in section `d3 properties`.
+
+Available properties are:
+
+* Link distance - sets the target distance between linked nodes to the specified value. Predefined value is calculated while launching application, based on total number of nodes
+
+* Link strength - sets the strength (rigidity) of links to the specified value
+
+* Charge - strength of the node repulsion. Predefined value is calculated while launching application, based on total number of nodes
+
+* Vertex size - minimum and maximum size of the nodes can be set. Predefined values are calculated while launching application, based on total number of nodes. Two values are required, as they are used to normalize each node size in case nodes are reflecting some properties (see `R properties`)
+
+* Node color - ten colours to choose from. It's creating a scale from the chosen color to light yellow. This scale is used in case the color of the nodes is reflecting some properties (see `R properties`)
+
+More information on force-directed layout: [Force Layout](https://github.com/mbostock/d3/wiki/Force-Layout)
+
+## R properties
+Network objects does not only contain data regarding nodes and edges, but also regarding their properties. D3net application reads the available properties and enables to reflect them on the graph.
+
+Those graph elements can reflect object properties:
+
+* Edge thickness - can refect all edge properties, that are numeric.
+
+* Vertex size - can reflect all vertex properties, that are numeric. Values are normalized to fit into the range set by vertex size in d3 properties.
+
+* Vertex color - can reflect all vertex properties, that are either character or logical. The color scale used is based on the vertex color choice in d3 properties.
+
+* Tooltip information - can show all vertex properties available. All chosen properties regarding chosen node will be shown on mouse over.
+
+## igraph and network objects visualisation
+
+Static network object are visualised with the properties described above. 
+
+You can change d3 and R properties, zoom the graph and drag the nodes. To see all the details on the tooltip, simply move your mouse over the node.
+
+## networkDynamic objects visualisation
+
+Comparing to static networks, dynamic network visualisation has few extra controls. In `d3 properties` there's time interval control, by default set to `3000ms`. It states how fast does the timepoint last during animation. 
+
+Animating the graph is available through the controls below the graph. Control buttons enable to play, pause or replay the animation, user can also move the slider's thumb to change the timepoint.
+
+## Large networks
+
+For visualisations with large number of vertices, predefined nodes size can be pretty small. For this reason, there is a zooming control that enables changing the scale as well as moving the whole graph in every direction. 
+
+As zooming gestures may be interferring with the dragging, it's not possible to drag the 
+nodes when zooming is on.
+
+## Examples
+
+To launch examples, use the example datasets provided for each object type.
+
+igraph
+
+```{r, eval=FALSE}
+library(igraphdata)
+data(karate)
+d3net(karate)
+```
+
+--------
+
+network
+
+```{r, eval=FALSE}
+library(network)
+data(flo)
+#create network object from sample data
+nflo <- network(flo, directed = FALSE)
+d3net(nflo)
+```
+
+--------
+
+networkDynamic
+
+```{r, eval=FALSE}
+library(networkDynamicData)
+data(harry_potter_support)
+d3net(harry_potter_support)
+```
