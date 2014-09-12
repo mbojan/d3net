@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #d3net
 
 Framework for creating Shiny applications for network visualization using D3.js JavaScript library.
