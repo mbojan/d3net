@@ -14,8 +14,7 @@ networkDynamicApp <- function(data) {
   shinyApp(
     ui = fluidPage(
       div(class = "busy",  
-          p("Calculation in progress.."), 
-          imageOutput("loader")),
+          p("Calculation in progress..")),
       fluidRow(h1("d3net")),
       fluidRow(
         column(4,
@@ -122,10 +121,6 @@ networkDynamicApp <- function(data) {
                     multiple = TRUE)
       )
     })
-    
-    output$loader <- renderImage({
-      list(src = system.file('www', 'img', 'ajax-loader.gif', package = 'd3net'))
-    }, deleteFile = FALSE)
     
     output$logo <- renderImage({
       list(src = system.file('www', 'img', 'icm-logo.png', package = 'd3net'))

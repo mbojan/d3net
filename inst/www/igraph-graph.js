@@ -31,6 +31,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
 
       var zoomButtonHtml = '<button type="button" class="btn btn-default btn-lg" id="zoomButton">Zooming</button>'
       $("#player").html(zoomButtonHtml);
+      $("#logo").removeAttr("style");
       
       var stringsForColoring = [];
       var projectionColors = {};

@@ -40,6 +40,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       $("#slider").val(Number(d3properties[0].timeMin));
       $("#timeCount").html('<b>Current</b> ' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax);
       $("#timeInfo").html('<b>Time range</b> ' + d3properties[0].timeMin + ' - ' + d3properties[0].timeMax);
+      $("#logo").removeAttr("style");
 
       var nodes = [],
           edges = [],
