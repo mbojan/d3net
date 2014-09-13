@@ -9,7 +9,7 @@ igraphApp <- function(data)
     ui = fluidPage(
       div(class = "busy",  
           p("Calculation in progress.."), 
-          img(src="img/ajax-loader.gif")),
+          imageOutput("loader")),
       fluidRow(h1("d3net")),
       fluidRow(
         column(4,
@@ -38,7 +38,10 @@ igraphApp <- function(data)
                       htmlOutput("vertexRadius"),
                       htmlOutput("tooltipAttr")
                ),
-               htmlOutput("footer")
+               HTML('<div class="span12"><hr/><h4>Info</h4></div>'),
+               div(class="span12",
+                   htmlOutput("footer"),
+                   div(class="span6",imageOutput("logo")))
         ),
       column(8,
         tags$head(includeScript(system.file('www', 'igraph-graph.js', package = 'd3net'))),
@@ -51,31 +54,6 @@ igraphApp <- function(data)
       )
     ), 
     server = function(input, output, session) {
-      output$rplot <- renderPlot({
-        plot(data)
-      })
-      
-      output$pngDownload <- downloadHandler(
-        filename = function() {
-          paste('data-', Sys.Date(), '.png', sep='')
-        },
-        content = function(file) {
-          png(file)
-          plot(data)
-          dev.off()
-        }
-      )
-      
-      output$pdfDownload <- downloadHandler(
-        filename = function() {
-          paste('data-', Sys.Date(), '.pdf', sep='')
-        },
-        content = function(file) {
-          pdf(file)
-          plot(data)
-          dev.off()
-        }
-      )
       
       updateSelectizeInput(
         session, 'colorScale', server = FALSE,
@@ -145,20 +123,19 @@ igraphApp <- function(data)
                   selected = "None")
     })
     
+    output$loader <- renderImage({
+      list(src = system.file('www', 'img', 'ajax-loader.gif', package = 'd3net'))
+    }, deleteFile = FALSE)
+    
+    output$logo <- renderImage({
+      list(src = system.file('www', 'img', 'icm-logo.png', package = 'd3net'))
+    }, deleteFile = FALSE)
+    
     output$footer <- renderUI({
-      HTML(paste('<div class="span12"><hr/><h4>Info</h4></div>
-                 <div class="span12">
-                 <div class="span6">
+      HTML(paste('<div class="span6">
                  Package: ', packageDescription("d3net")$Package[1], '<br/>
                  Version: ', packageDescription("d3net")$Version[1], '<br/>
                  Authors: ', packageDescription("d3net")$Author[1], '<br/>
-                 </div>
-                 
-                 <div class="span6">
-                 <a href="http://www.icm.edu.pl">
-                 <img src="', system.file('www', 'img', 'icm-logo.png', package = 'd3net'),'" class="img-responsive"/>
-                 </a>
-                 </div>
                  </div>'))
     })
     
