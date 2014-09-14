@@ -1,8 +1,3 @@
-reactiveNetwork <- function (outputId) 
-{
-  HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg /></div>", sep=""))
-}
-
 igraphApp <- function(data)
 {
     shinyApp(
