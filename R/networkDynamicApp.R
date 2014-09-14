@@ -14,8 +14,7 @@ networkDynamicApp <- function(data) {
   shinyApp(
     ui = fluidPage(
       div(class = "busy",  
-          p("Calculation in progress.."), 
-          img(src="img/ajax-loader.gif")),
+          p("Calculation in progress..")),
       fluidRow(h1("d3net")),
       fluidRow(
         column(4,
@@ -36,7 +35,10 @@ networkDynamicApp <- function(data) {
                       h4("R properties"),
                       htmlOutput("rProperties")
                ),
-               htmlOutput("footer")
+               HTML('<div class="span12"><hr/><h4>Info</h4></div>'),
+               div(class="span12",
+                   htmlOutput("footer"),
+                   div(class="span6",imageOutput("logo")))
         ),
         column(8,
                tags$head(includeScript(system.file('www', 'network-graph.js', package = 'd3net'))),
@@ -52,31 +54,6 @@ networkDynamicApp <- function(data) {
       )
     ),
     server = function(input, output, session) {
-      output$rplot <- renderPlot({
-        plot(data)
-      })
-      
-      output$pngDownload <- downloadHandler(
-        filename = function() {
-          paste('data-', Sys.Date(), '.png', sep='')
-        },
-        content = function(file) {
-          png(file)
-          plot(data)
-          dev.off()
-        }
-      )
-      
-      output$pdfDownload <- downloadHandler(
-        filename = function() {
-          paste('data-', Sys.Date(), '.pdf', sep='')
-        },
-        content = function(file) {
-          pdf(file)
-          plot(data)
-          dev.off()
-        }
-      )
       
       updateSelectizeInput(
         session, 'colorScale', server = FALSE,
@@ -145,20 +122,15 @@ networkDynamicApp <- function(data) {
       )
     })
     
+    output$logo <- renderImage({
+      list(src = system.file('www', 'img', 'icm-logo.png', package = 'd3net'))
+    }, deleteFile = FALSE)
+    
     output$footer <- renderUI({
-      HTML(paste('<div class="span12"><hr/><h4>Info</h4></div>
-                 <div class="span12">
-                 <div class="span6">
+      HTML(paste('<div class="span6">
                  Package: ', packageDescription("d3net")$Package[1], '<br/>
                  Version: ', packageDescription("d3net")$Version[1], '<br/>
                  Authors: ', packageDescription("d3net")$Author[1], '<br/>
-                 </div>
-                 
-                 <div class="span6">
-                 <a href="http://www.icm.edu.pl">
-                 <img src="img/icm-logo.png" class="img-responsive"/>
-                 </a>
-                 </div>
                  </div>'))
     })
     
