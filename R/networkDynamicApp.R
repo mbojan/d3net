@@ -1,4 +1,16 @@
+#' @method d3net networkDynamic
+#' @rdname d3net
+#' @export
+d3net.networkDynamic <- function(dataset)
+{
+  networkDynamicApp(dataset)
+}
 
+  
+
+
+#' @importFrom network list.vertex.attributes get.vertex.attribute network.vertex.names get.network.attribute is.directed
+#' @importFrom networkDynamic get.edge.activity get.vertex.activity 
 networkDynamicApp <- function(data) {
   shinyApp(
     ui = fluidPage(
@@ -80,7 +92,7 @@ networkDynamicApp <- function(data) {
     }
     
     # calculate predefined values for layout properties
-    no_nodes <- length(network.vertex.names(data))
+    no_nodes <- length(network::network.vertex.names(data))
     chargeValue <- min(-1, round(0.12 * no_nodes - 125))
     linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
     vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
@@ -124,22 +136,22 @@ networkDynamicApp <- function(data) {
     })
     
     edgesReflection <- reactive({
-      return(rep(NA,length(get.edge.activity(data, as.spellList = TRUE)$tail)))
+      return(rep(NA,length(networkDynamic::get.edge.activity(data, as.spellList = TRUE)$tail)))
     })
     
     output$mainnet <- reactive({
       # node activity matrix
-      nodesActivity <- get.vertex.activity(data, as.spellList = TRUE)[c("vertex.id", "onset", "terminus")]
+      nodesActivity <- networkDynamic::get.vertex.activity(data, as.spellList = TRUE)[c("vertex.id", "onset", "terminus")]
       # remove -Inf
-      nodesActivity$onset[nodesActivity$onset == -Inf] <- range(get.network.attribute(data,'net.obs.period')$observations)[1]
+      nodesActivity$onset[nodesActivity$onset == -Inf] <- range(network::get.network.attribute(data,'net.obs.period')$observations)[1]
       # remove Inf
-      nodesActivity$terminus[nodesActivity$terminus == Inf] <- range(get.network.attribute(data,'net.obs.period')$observations)[2]
+      nodesActivity$terminus[nodesActivity$terminus == Inf] <- range(network::get.network.attribute(data,'net.obs.period')$observations)[2]
       
       # node names
-      nodes <- as.character(network.vertex.names(data))
+      nodes <- as.character(network::network.vertex.names(data))
       
       # edges acitivity matrix
-      connectionsIdx <- get.edge.activity(data, as.spellList = TRUE)[c("onset", "terminus", "tail", "head")]
+      connectionsIdx <- networkDynamic::get.edge.activity(data, as.spellList = TRUE)[c("onset", "terminus", "tail", "head")]
       # remove onset -Inf values
       i <- which( connectionsIdx$onset == -Inf )
       mv.tail <- match( connectionsIdx$tail[i], nodesActivity$vertex.id )
@@ -179,8 +191,8 @@ networkDynamicApp <- function(data) {
       
       # full edges data
       dir = network::is.directed(data)
-      timeRangeMin <- range(get.network.attribute(data,'net.obs.period')$observations)[1]
-      timeRangeMax <- range(get.network.attribute(data,'net.obs.period')$observations)[2]
+      timeRangeMin <- range(network::get.network.attribute(data,'net.obs.period')$observations)[1]
+      timeRangeMax <- range(network::get.network.attribute(data,'net.obs.period')$observations)[2]
       
       # d3 graph properties
       if (is.null(input$charge)) charge <- chargeValue else charge <- input$charge

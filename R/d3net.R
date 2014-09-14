@@ -1,8 +1,13 @@
 #' Launching Shiny apps
 #' 
-#' D3net application creates a visualisation of dynamic or static network. Graph layout has some
-#' predefined properties that can be changed through the controls in the app. 
-#' See sections below for more information.
+#' Launch a Shiny application providing interactive visualisation of a static
+#' or dynamic network data.
+#'
+#' @param dataset R object containing (dynamic) network data. See Usage and Details
+#' for description of available methods.
+#'
+#' Graph layout has some predefined properties that can be changed
+#' through the controls in the app.  See sections below for more information.
 #' To launch the shiny app use functions described below. 
 #' 
 #' @section D3.js properties:
@@ -30,8 +35,6 @@
 #' 
 #' @note Function transforms network object into igraph object using intergraph.
 #'
-#' @param dataset R object, see Usage for available methods
-#'
 #' Currently methods are implemented for objects of class "igraph", "network",
 #' and "networkDynamic".
 #'
@@ -48,34 +51,3 @@ d3net.default <- function(dataset)
 {
   stop(paste("no 'd3net' method for objects of class", class(dataset)))
 }
-
-#' @method d3net igraph
-#' @rdname d3net
-#' @import igraph
-#' @export
-d3net.igraph <- function(dataset)
-{
-  igraphApp(dataset)
-}
-
-
-#' @method d3net networkDynamic
-#' @rdname d3net
-#' @import networkDynamic
-#' @export
-d3net.networkDynamic <- function(dataset)
-{
-  networkDynamicApp(dataset)
-}
-
-#' @method d3net network
-#' @rdname d3net
-#' @import intergraph
-#' @import network
-#' @export
-d3net.network <- function(dataset)
-{
-  dataset <- asIgraph(dataset)
-  igraphApp(dataset)
-}
-  

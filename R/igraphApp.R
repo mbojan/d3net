@@ -1,3 +1,32 @@
+#' @rdname d3net
+#' @method d3net igraph
+#' @export
+#'
+#' @details
+#' All vertex and edge attributes are imported and available through the interface.
+#' (Describe what can be done)
+d3net.igraph <- function(dataset)
+{
+  igraphApp(dataset)
+}
+
+#' @method d3net network
+#'
+#' @details
+#' Describe method for "network" objects
+#'
+#' @rdname d3net
+#' @importFrom intergraph asIgraph
+#' @export
+d3net.network <- function(dataset)
+{
+  dataset <- asIgraph(dataset)
+  igraphApp(dataset)
+}
+
+
+
+#' @importFrom igraph vertex.attributes is.weighted get.adjacency E get.edgelist closeness betweenness degree is.directed ecount edge.betweenness
 igraphApp <- function(data)
 {
     shinyApp(
@@ -85,7 +114,7 @@ igraphApp <- function(data)
     }
     
     output$edge <- renderUI({
-      if (is.weighted(data))
+      if (igraph::is.weighted(data))
         l <- c("None" = "none","Betweenness" = "betweenness", "Weight" = "weight")
       else
         l <- c("None" = "none","Betweenness" = "betweenness")
@@ -130,7 +159,7 @@ igraphApp <- function(data)
     })
     
     # calculate predefined values for layout properties
-    no_nodes <- nrow(get.adjacency(data))
+    no_nodes <- nrow(igraph::get.adjacency(data))
     chargeValue <- min(-1, round(0.12 * no_nodes - 125))
     linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
     vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
@@ -148,23 +177,23 @@ igraphApp <- function(data)
     edgesReflection <- reactive({
       
       if (is.null(input$edge) || input$edge == "None")
-        return(rep(NA, ecount(data)))
+        return(rep(NA, igraph::ecount(data)))
       
       if (input$edge == "weight")
-        return(E(data)$weight)
+        return(igraph::E(data)$weight)
       
       if (input$edge == "betweenness")
-        return(edge.betweenness(data))
+        return(igraph::edge.betweenness(data))
       
-      return(rep(NA, ecount(data)))
+      return(rep(NA, igraph::ecount(data)))
     })
     
     output$mainnet <- reactive({
-      if (is.null(rownames(get.adjacency(data))))
-        nodes <- seq(1, nrow(get.adjacency(data)))
+      if (is.null(rownames(igraph::get.adjacency(data))))
+        nodes <- seq(1, nrow(igraph::get.adjacency(data)))
       else 
-        nodes <- rownames(get.adjacency(data))
-      connections <- get.edgelist(data)
+        nodes <- rownames(igraph::get.adjacency(data))
+      connections <- igraph::get.edgelist(data)
       connectionsIdx <- matrix(nrow = nrow(connections), ncol = ncol(connections))
       
       for (i in 1 : nrow(connections))
@@ -186,9 +215,9 @@ igraphApp <- function(data)
       colnames(connectionsIdx) <- c("source","target", "property")
       # full vertices data for tooltips
       v_attributes <- igraph::vertex.attributes(data)
-      v_attributes$Closeness <- as.vector(closeness(data))
-      v_attributes$Betweenness <- as.vector(betweenness(data))
-      v_attributes$Degree <- as.vector(degree(data))
+      v_attributes$Closeness <- as.vector(igraph::closeness(data))
+      v_attributes$Betweenness <- as.vector(igraph::betweenness(data))
+      v_attributes$Degree <- as.vector(igraph::degree(data))
       
       dir = igraph::is.directed(data)
       # d3 graph properties

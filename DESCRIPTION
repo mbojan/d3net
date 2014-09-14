@@ -16,6 +16,7 @@ Imports:
     igraph,
     shiny,
     intergraph,
+    network,
     networkDynamic
 Suggests:
     testthat,

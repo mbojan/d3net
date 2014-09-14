@@ -13,24 +13,33 @@ d3net(dataset)
 
 \method{d3net}{igraph}(dataset)
 
-\method{d3net}{networkDynamic}(dataset)
-
 \method{d3net}{network}(dataset)
+
+\method{d3net}{networkDynamic}(dataset)
 }
 \arguments{
-\item{dataset}{R object, see Usage for available methods
+\item{dataset}{R object containing (dynamic) network data. See Usage and Details
+for description of available methods.
 
-Currently methods are implemented for objects of class "igraph", "network",
-and "networkDynamic".}
+Graph layout has some predefined properties that can be changed
+through the controls in the app.  See sections below for more information.
+To launch the shiny app use functions described below.}
 }
 \description{
-D3net application creates a visualisation of dynamic or static network. Graph layout has some
-predefined properties that can be changed through the controls in the app.
-See sections below for more information.
-To launch the shiny app use functions described below.
+Launch a Shiny application providing interactive visualisation of a static
+or dynamic network data.
+}
+\details{
+All vertex and edge attributes are imported and available through the interface.
+(Describe what can be done)
+
+Describe method for "network" objects
 }
 \note{
 Function transforms network object into igraph object using intergraph.
+
+Currently methods are implemented for objects of class "igraph", "network",
+and "networkDynamic".
 }
 \section{D3.js properties}{
 
