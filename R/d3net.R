@@ -55,7 +55,6 @@ d3net.default <- function(dataset)
 #' @export
 d3net.igraph <- function(dataset)
 {
-  cat(paste("Running Shiny App for igraphs..."))
   igraphApp(dataset)
 }
 
@@ -66,7 +65,6 @@ d3net.igraph <- function(dataset)
 #' @export
 d3net.networkDynamic <- function(dataset)
 {
-  cat(paste("Running Shiny App for dynamic networks..."))
   networkDynamicApp(dataset)
 }
 
@@ -77,7 +75,6 @@ d3net.networkDynamic <- function(dataset)
 #' @export
 d3net.network <- function(dataset)
 {
-  cat(paste("Running Shiny App for networks..."))
   dataset <- asIgraph(dataset)
   igraphApp(dataset)
 }
