@@ -71,4 +71,20 @@ scale.  You can also move the whole graph in every direction.  As gestures
 may be interferring with the dragging, it's not possible to drag the nodes
 when zooming is on.
 }
+\examples{
+\dontrun{
+# static network of class 'igraph'
+data(karate, package="igraphdata")
+d3net(karate)
+
+# static network 2
+data(flo, package="network")
+g <- graph.adjacency(flo, mode="directed")
+d3net(g)
+
+# dynamic network
+data(harry_potter_support, package="networkDynamicData")
+d3net(harry_potter_support)
+}
+}
 

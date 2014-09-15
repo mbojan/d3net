@@ -48,6 +48,21 @@
 #'
 #' @export
 #' @import shiny
+#' @examples
+#' \dontrun{
+#' # static network of class 'igraph'
+#' data(karate, package="igraphdata")
+#' d3net(karate)
+#'
+#' # static network 2
+#' data(flo, package="network")
+#' g <- graph.adjacency(flo, mode="directed")
+#' d3net(g)
+#'
+#' # dynamic network
+#' data(harry_potter_support, package="networkDynamicData")
+#' d3net(harry_potter_support)
+#' }
 d3net <- function(dataset, ...) {
   UseMethod("d3net", dataset)
 }
@@ -59,3 +74,8 @@ d3net.default <- function(dataset, ...)
 {
   stop(paste("no 'd3net' method for objects of class", class(dataset)))
 }
+
+
+
+
+
