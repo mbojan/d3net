@@ -2,20 +2,31 @@
 \docType{package}
 \name{d3net-package}
 \alias{d3net-package}
-\title{Visualizing networks using D3.js and Shiny}
+\title{Visualizing networks using Shiny and D3.js}
 \description{
 Framework for creating Shiny applications for static and dynamic network
 visualizations using D3.js JavaScript library.
 }
 \details{
-Visualisation is a force-directed layout interactive SVG graph, which nodes and edges
-can be dragged and changed dynamically to reflect network properties. The graph itself is also
-zoomable. For dynamic networks, player controls has been provided.
+The package relies on an interactive SVG graph showing the network with
+force-directed placement. The vertices and and edges can be dragged around
+to modify the layout. Vertex- and edge-level attributes can be shown using
+vertex color and size, edge width, and dynamic tooltips.
+
+The package enables to visualize both static network data (currently objects
+of class "igraph" or "network") and dynamic network data (objects of class
+"networkDynamic", currently experimental feature).
+
+The graph is zoomable. The graph itself is also zoomable. For dynamic networks, player
+controls has been provided.
 }
 \author{
-Michal Bojanowski \email{michal2992@gmail.com}, Monika Pawluczuk \email{pawluczuk.monika@gmail.com}
+Michal Bojanowski \email{michal2992@gmail.com},
+Monika Pawluczuk \email{pawluczuk.monika@gmail.com}
 }
 \seealso{
+\code{\link{d3net}}
+
 \url{http://d3js.org}
 }
 
