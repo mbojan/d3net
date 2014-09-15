@@ -1,11 +1,14 @@
+#============================================================================ 
+# Here we describe issues specific to the STATIC application
+#============================================================================ 
+#
 #' @rdname d3net
 #' @method d3net igraph
 #' @export
 #'
 #' @details
-#' All vertex and edge attributes are imported and available through the interface.
-#' (Describe what can be done)
-d3net.igraph <- function(dataset)
+#' (TODO: Describe the static application)
+d3net.igraph <- function(dataset, ...)
 {
   igraphApp(dataset)
 }
@@ -13,12 +16,13 @@ d3net.igraph <- function(dataset)
 #' @method d3net network
 #'
 #' @details
-#' Describe method for "network" objects
+#' If \code{dataset} is of class "network", it is converted to "igraph" object
+#' using \code{\link[intergraph]{asIgraph}}.
 #'
 #' @rdname d3net
 #' @importFrom intergraph asIgraph
 #' @export
-d3net.network <- function(dataset)
+d3net.network <- function(dataset, ...)
 {
   dataset <- asIgraph(dataset)
   igraphApp(dataset)

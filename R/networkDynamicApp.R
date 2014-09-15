@@ -1,9 +1,20 @@
+#============================================================================ 
+# Here we describe issues specific to the DYNAMIC application
+#============================================================================ 
 #' @method d3net networkDynamic
 #' @rdname d3net
 #' @export
-d3net.networkDynamic <- function(dataset)
+#'
+#' @details
+#' (TODO: Describe dynamic application)
+#'
+#' For dynamic visualisations, user may also set the time interval between each
+#' timepoint.  It is by default 3000ms (3s). To play with the visualisation,
+#' use the controls below the graph.  It is also possible to pause a
+#' visualisation and freeze the graph by pressing spacebar.
+d3net.networkDynamic <- function(dataset, ...)
 {
-  networkDynamicApp(dataset)
+  networkDynamicApp(dataset, ...)
 }
 
   
