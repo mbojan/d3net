@@ -2,12 +2,8 @@ Package: d3net
 Title: Visualizing networks using d3js and Shiny
 Version: 0.1
 Authors@R: c(
-    person("Michal", "Bojanowski",
-    email="michal2992@gmail.com",
-    role=c("aut", "cre")),
-    person("Monika", "Pawluczuk",
-    email="pawluczuk.monika@gmail.com",
-    role=c("aut", "cre")))
+    person("Michal", "Bojanowski", email="michal2992@gmail.com", role=c("aut", "cre")),
+    person("Monika", "Pawluczuk", email="pawluczuk.monika@gmail.com", role="aut"))
 Description: Framework for creating Shiny applications for static and dynamic
     network visualizations using d3js
 Depends:
