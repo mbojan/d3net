@@ -36,7 +36,10 @@ Graph layout has some predefined properties that can be changed
 through the controls in the app.  See sections below for more information.
 To launch the shiny app use functions described below.
 
-Link distance, charge and vertex size are calculated depending on total number of nodes.
+TODO describe all d3 properties in detail.
+
+Link distance, charge and vertex size are calculated depending on total
+number of nodes.
 
 # how R vertex/edge attributes are handled
 
@@ -47,22 +50,25 @@ numeric ones by the size of the node. Edge properties can be reflected by
 edge thickness.  All of the available properties may be added to the tooltip
 information, which is shown on node mouseover.
 
-For visualisations with large number of vertices, nodes size can be pretty
-small.  For this reason, there is a zooming control that lets you change the
-scale.  You can also move the whole graph in every direction.  As gestures
-may be interferring with the dragging, it's not possible to drag the nodes
-when zooming is on.
-
-(Describe the static application)
+(TODO: Describe the static application)
 
 If \code{dataset} is of class "network", it is converted to "igraph" object
 using \code{\link[intergraph]{asIgraph}}.
 
-(Describe dynamic application)
+(TODO: Describe dynamic application)
 
 For dynamic visualisations, user may also set the time interval between each
 timepoint.  It is by default 3000ms (3s). To play with the visualisation,
 use the controls below the graph.  It is also possible to pause a
 visualisation and freeze the graph by pressing spacebar.
+}
+\note{
+(TODO non-usage-specific notes, e.g. performance etc.)
+
+For visualisations with large number of vertices, nodes size can be pretty
+small.  For this reason, there is a zooming control that lets you change the
+scale.  You can also move the whole graph in every direction.  As gestures
+may be interferring with the dragging, it's not possible to drag the nodes
+when zooming is on.
 }
 
