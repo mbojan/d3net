@@ -14,9 +14,20 @@
 #' @param ... other arguments passed to/from other methods
 #'
 #' @details
-#' Generic details first.
+#' This function launches a Shiny application. Currently there are two
+#' applications implemented: for static network data, and for dynamic network
+#' data. Which one is launched depends on the class of \code{dataset}.
 #'
-#' d3js-specific
+#' Static and dynamic application have a very similar interface. In the
+#' leftmost column you will find a set of sliders with which various layout
+#' parameters can be specified. These are mostly specific to the d3 library
+#' which is used for network visualization.  See \url{} for explanations.
+#'
+#' To the right of the sliders there is a column of dropdown lists with which
+#' it is possible to assign vertex and edge attributes found in data to various
+#' graphical elements.
+#'
+#' # Layout and other d3 properties
 #'
 #' Graph layout has some predefined properties that can be changed
 #' through the controls in the app.  See sections below for more information.
@@ -26,8 +37,12 @@
 #' 
 #' Link distance, charge and vertex size are calculated depending on total
 #' number of nodes.
-#' 
-#' # how R vertex/edge attributes are handled
+#'
+#' # Handling vertex and edge attributes
+#'
+#' To the right of the sliders there are several dropdown lists with which
+#' vertex- and edge attributes can be assigned to graphical features like
+#' vertex size, vertex color and so on.
 #'
 #' Vertices and edges properties of the visualised object can be reflected as
 #' well.  Controls in \code{R properties} section enable this.  Logical and
