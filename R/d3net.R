@@ -62,7 +62,6 @@
 #' when zooming is on.
 #'
 #' @export
-#' @import shiny
 #' @examples
 #' \dontrun{
 #' # static network of class 'igraph'

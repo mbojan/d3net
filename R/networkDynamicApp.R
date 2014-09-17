@@ -20,8 +20,6 @@ d3net.networkDynamic <- function(dataset, ...)
   
 
 
-#' @importFrom network list.vertex.attributes get.vertex.attribute network.vertex.names get.network.attribute is.directed
-#' @importFrom networkDynamic get.edge.activity get.vertex.activity 
 networkDynamicApp <- function(data) {
   shinyApp(
     ui = fluidPage(

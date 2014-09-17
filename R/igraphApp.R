@@ -20,17 +20,15 @@ d3net.igraph <- function(dataset, ...)
 #' using \code{\link[intergraph]{asIgraph}}.
 #'
 #' @rdname d3net
-#' @importFrom intergraph asIgraph
 #' @export
 d3net.network <- function(dataset, ...)
 {
-  dataset <- asIgraph(dataset)
+  dataset <- intergraph::asIgraph(dataset)
   igraphApp(dataset)
 }
 
 
 
-#' @importFrom igraph vertex.attributes is.weighted get.adjacency E get.edgelist closeness betweenness degree is.directed ecount edge.betweenness
 igraphApp <- function(data)
 {
     shinyApp(

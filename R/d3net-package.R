@@ -19,6 +19,7 @@
 #' \code{\link{d3net}}
 #'
 #' @name d3net-package
+#' @import shiny
 #' @author
 #' Michal Bojanowski \email{michal2992@@gmail.com},
 #' Monika Pawluczuk \email{pawluczuk.monika@@gmail.com}
