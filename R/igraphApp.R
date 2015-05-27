@@ -35,51 +35,58 @@ igraphApp <- function(data)
     ui = fluidPage(
       div(class = "busy",  
           p("Calculation in progress..")),
-      fluidRow(h1("d3net")),
+      fluidRow(
+        column(12,
+                h1("d3net")
+        )),
       fluidRow(
         column(4,
-               column(6, 
-                      h4("d3 properties"),
-                      
-                      sliderInput("charge", "Charge:", 
-                                  min=-500, max=0, value=-300),
-                      htmlOutput("layoutProperties"),
-                      sliderInput("linkStrength", "Link strength:", 
-                                  min=0, max=1, value=0.5),
-                      selectizeInput("colorScale", "Choose color:",
-                                     choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
-                                                 "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
-                                                 "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
-                                                 "#17becf" = 9), selected = 0)
-               ),
-               column(6, 
-                      h4("R properties"),
-                      selectInput("outputFormat", 
-                                  label = "Select output format", 
-                                  choices = list("Interactive d3.js" = 1, "R rendered" = 2), 
-                                  selected = 1),
-                      htmlOutput("edge"),
-                      htmlOutput("vertexColor"),
-                      htmlOutput("vertexRadius"),
-                      htmlOutput("tooltipAttr")
-               ),
-               HTML('<div class="span12"><hr/><h4>Info</h4></div>'),
-               div(class="span12",
-                   htmlOutput("footer"),
-                   div(class="span6",imageOutput("logo")))
+               tabsetPanel(
+                 tabPanel("D3.js properties",
+                          column(12,
+                            htmlOutput("layoutProperties"),
+                            sliderInput("linkStrength", "Link strength:", 
+                                        min=0, max=1, value=0.5),
+                            selectizeInput("colorScale", "Choose color:",
+                                           choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
+                                                       "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
+                                                       "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
+                                                       "#17becf" = 9), selected = 0)
+                            )
+                          ),
+                 tabPanel("R properties",
+                          column(12, 
+                            selectInput("outputFormat", 
+                                        label = "Select output format", 
+                                        choices = list("Interactive d3.js" = 1), 
+                                        selected = 1),
+                            htmlOutput("edge"),
+                            htmlOutput("vertexColor"),
+                            htmlOutput("vertexRadius"),
+                            htmlOutput("tooltipAttr")
+                            )
+                          ),
+                 tabPanel("Info",
+                          column(12, 
+                            column(6, htmlOutput("footer")),
+                            column(6, imageOutput("logo"))
+                            )
+                          )
+               )
         ),
-      column(8,
-        tags$head(includeScript(system.file('www', 'igraph-graph.js', package = 'd3net'))),
-        tags$head(includeScript(system.file('www', 'd3.min.js', package = 'd3net'))),
-        tags$head(includeScript(system.file('www', 'jquery.tipsy.js', package = 'd3net'))),
-        tags$head(includeCSS(system.file('www', 'tipsy.css', package = 'd3net'))),
-        reactiveNetwork(outputId = "mainnet"),
-        div(id = "player", class="span4 btn-group btn-group-justified")
-      )
+        column(8,
+          tags$head(includeScript(system.file('www', 'igraph-graph.js', package = 'd3net'))),
+          tags$head(includeScript(system.file('www', 'd3-graph.js', package = 'd3net'))),
+          tags$head(includeScript(system.file('www', 'd3.min.js', package = 'd3net'))),
+          tags$head(includeScript(system.file('www', 'jquery.tipsy.js', package = 'd3net'))),
+          tags$head(includeCSS(system.file('www', 'tipsy.css', package = 'd3net'))),
+          reactiveNetwork(outputId = "mainnet"),
+          actionButton("zoomButton", "Zooming")
+        )
       )
     ), 
     server = function(input, output, session) {
-      
+      isolate({     
       updateSelectizeInput(
         session, 'colorScale', server = FALSE,
         options = list(create = TRUE, render = I(sprintf(
@@ -115,66 +122,67 @@ igraphApp <- function(data)
       }
     }
     
-    output$edge <- renderUI({
-      if (igraph::is.weighted(data))
-        l <- c("None" = "none","Betweenness" = "betweenness", "Weight" = "weight")
-      else
-        l <- c("None" = "none","Betweenness" = "betweenness")
-      selectInput("edge",
-                  label = "Edges reflect",
-                  choices =  l)
-    })
+      output$edge <- renderUI({
+        if (igraph::is.weighted(data))
+          l <- c("None" = "none","Betweenness" = "betweenness", "Weight" = "weight")
+        else
+          l <- c("None" = "none","Betweenness" = "betweenness")
+        selectInput("edge",
+                    label = "Edges reflect",
+                    choices =  l)
+      })
+      
+      output$tooltipAttr <- renderUI({
+        l <- c("Degree", "Betweenness", "Closeness", names(igraph::vertex.attributes(data)))  
+        selectInput("tooltipAttr",
+                    label = "Tooltip information",
+                    choices = l,
+                    multiple = TRUE
+        )
+      })
+      
+      output$vertexColor <- renderUI({
+        selectInput("vertexColor", 
+                    label = "Vertices color reflect", 
+                    choices = c("None", characterChoices),
+                    selected = "None")
+      })
+      
+      output$vertexRadius <- renderUI({
+        selectInput("vertexRadius", 
+                    label = "Vertices radius reflect", 
+                    choices = c("None", "Degree", "Betweenness", "Closeness", numericChoices),
+                    selected = "None")
+      })
+      
+      output$logo <- renderImage({
+        list(src = system.file('www', 'img', 'icm-logo.png', package = 'd3net'))
+      }, deleteFile = FALSE)
+      
+      output$footer <- renderUI({
+        HTML(paste('<div class="span6">
+                   Package: ', packageDescription("d3net")$Package[1], '<br/>
+                   Version: ', packageDescription("d3net")$Version[1], '<br/>
+                   Authors: ', packageDescription("d3net")$Author[1], '<br/>
+                   </div>'))
+      })
+      
+      # calculate predefined values for layout properties
+      no_nodes <- nrow(igraph::get.adjacency(data))
+      chargeValue <- min(-1, round(0.12 * no_nodes - 125))
+      linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
+      vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
+      
+      output$layoutProperties <- renderUI({
+        list(
+          sliderInput("linkDistance", "Link distance:", 
+                      min=0, max=300, value = linkDistanceValue ),
+          sliderInput("chargeSlider", "Charge:", 
+                      min=-500, max=0, value = chargeValue ),
+          sliderInput("vertexSize", "Vertex size:", 
+                      min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
+      })
     
-    output$tooltipAttr <- renderUI({
-      l <- c("Degree", "Betweenness", "Closeness", names(igraph::vertex.attributes(data)))  
-      selectInput("tooltipAttr",
-                  label = "Tooltip information",
-                  choices = l,
-                  multiple = TRUE
-      )
-    })
-    
-    output$vertexColor <- renderUI({
-      selectInput("vertexColor", 
-                  label = "Vertices color reflect", 
-                  choices = c("None", characterChoices),
-                  selected = "None")
-    })
-    
-    output$vertexRadius <- renderUI({
-      selectInput("vertexRadius", 
-                  label = "Vertices radius reflect", 
-                  choices = c("None", "Degree", "Betweenness", "Closeness", numericChoices),
-                  selected = "None")
-    })
-    
-    output$logo <- renderImage({
-      list(src = system.file('www', 'img', 'icm-logo.png', package = 'd3net'))
-    }, deleteFile = FALSE)
-    
-    output$footer <- renderUI({
-      HTML(paste('<div class="span6">
-                 Package: ', packageDescription("d3net")$Package[1], '<br/>
-                 Version: ', packageDescription("d3net")$Version[1], '<br/>
-                 Authors: ', packageDescription("d3net")$Author[1], '<br/>
-                 </div>'))
-    })
-    
-    # calculate predefined values for layout properties
-    no_nodes <- nrow(igraph::get.adjacency(data))
-    chargeValue <- min(-1, round(0.12 * no_nodes - 125))
-    linkDistanceValue <- max(1, round(-0.04 * no_nodes + 54))
-    vertexSizeMinValue <- max(1, round(-0.008 * no_nodes + 10.5))
-    
-    output$layoutProperties <- renderUI({
-      list(
-        sliderInput("linkDistance", "Link distance:", 
-                    min=0, max=300, value = linkDistanceValue ),
-        sliderInput("chargeSlider", "Charge:", 
-                    min=-500, max=0, value = chargeValue ),
-        sliderInput("vertexSize", "Vertex size:", 
-                    min=1, max=100, value = c(vertexSizeMinValue, 3*vertexSizeMinValue)))
-    })
     
     edgesReflection <- reactive({
       
@@ -188,6 +196,7 @@ igraphApp <- function(data)
         return(igraph::edge.betweenness(data))
       
       return(rep(NA, igraph::ecount(data)))
+    })
     })
     
     output$mainnet <- reactive({
@@ -227,16 +236,14 @@ igraphApp <- function(data)
       if (is.null(input$linkDistance)) linkDist <- linkDistanceValue else linkDist <- input$linkDistance
       if (is.null(input$vertexSize[1])) vertexMin <- vertexSizeMinValue else vertexMin <- input$vertexSize[1]
       if (is.null(input$vertexSize[2])) vertexMax <- vertexSizeMinValue*3 else vertexMax <- input$vertexSize[2]
-      d3properties <- matrix(c(charge,
-                               linkDist,
-                               vertexMin,
-                               vertexMax,
-                               input$linkStrength,
-                               input$colorScale,
-                               as.numeric(dir)), ncol = 7)
-      colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", 
-                                  "vertexSizeMax", "linkStrength", "color", "directed")
       
+      d3properties <- list("charge" = charge,
+                           "linkDistance" = linkDist,
+                           "vertexSizeMin" = vertexMin,
+                           "vertexSizeMax" = vertexMax,
+                           "linkStrength" = input$linkStrength,
+                           "color" = input$colorScale,
+                           "directed" = as.numeric(dir))
       type <- "igraph"
       graphData <- list(vertices = nodes, # vertices
                         links = connectionsIdx, # edges
