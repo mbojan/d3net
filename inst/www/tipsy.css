@@ -14,6 +14,12 @@ div.busy {
   border-radius: 5px;
 }
 
+#logo > img {
+  width: 100px;
+  height: auto;
+}
+
+
 .tipsy-title {font-weight:bold; font-size: 1.2em;}
 .tipsy { font-size: 0.8em; position: absolute; padding: 5px; z-index: 100000; }
   .tipsy-inner { background-color: #fff; color: #6E6E6E; padding: 5px 8px 4px 8px; text-align: center; -webkit-box-shadow: 4px 4px 10px 0px rgba(50, 50, 50, 0.75);
