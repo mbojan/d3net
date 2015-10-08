@@ -10,14 +10,14 @@ var networkOutputBinding = new Shiny.OutputBinding();
 		var properties = getProperties(data);
 		var projectionColors = getProjectionColors(data.vertices, data.verticesAttributes, properties);
 	  	var nodes = getNodes(data.vertices, data.verticesAttributes, properties, projectionColors);
-	  	var edges = data.links;
+	  	var edges = getEdges(data.links);
 	  	properties.maxVertexProperty = maxVertexProperty(nodes) || 0;
 	  	properties.maxEdgeProperty = maxEdgeProperty(edges) || 0;
 
 	  
-	  var vertices = data.vertices;
-	  var tooltipInfo = data.tooltipInfo;
-	  var verticesAttributes = data.verticesAttributes;
+		  var vertices = data.vertices;
+		  var tooltipInfo = data.tooltipInfo;
+		  var verticesAttributes = data.verticesAttributes;
 
 	  
 
@@ -115,5 +115,17 @@ function getNodes(vertices, verticesAttributes, properties, projectionColors) {
 		nodes.push({"name": vertices[i], "property" : property, "color" : projectionColors[value]});
 	}
 	return nodes;
+}
+
+function getEdges(links) {
+	if (!links)
+		return [];
+	var edges = [];
+	for (var i = 0; i < links.length; i++) {
+		edges.push({ "source" : links[i][0],
+			"target" : links[i][1],
+			"property" : links[i][2]});
+	}
+	return edges;
 }
 Shiny.outputBindings.register(networkOutputBinding, 'pawluczuk.networkbinding');

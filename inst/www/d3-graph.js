@@ -30,16 +30,16 @@
 		*/
 		svg.attr("id", "graph")
 			.attr("pointer-events", "all")
-			.attr("width", properties.width)
-			.attr("height", properties.height)
-			.attr("viewBox", "0, 0, " + properties.width + ", " + properties.height)
+			.attr("width", properties.width || 400)
+			.attr("height", properties.height || 400)
+			.attr("viewBox", "0, 0, " + properties.width || 400 + ", " + properties.height || 400)
 			.attr("preserveAspectRatio", "xMidYMid meet");
 
 		var background = svg.append('svg:g');
 
 		background.append('svg:rect')
-			.attr('width', properties.width)
-			.attr('height', properties.height)
+			.attr('width', properties.width || 400)
+			.attr('height', properties.height || 400)
 			.attr('fill', 'white');
 
 		var graph = $("#graph");

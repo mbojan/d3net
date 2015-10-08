@@ -220,7 +220,6 @@ igraphApp <- function(data)
       
       # what edges should reflect
       edges_property <- matrix(edgesReflection())
-      
       # bind edges with edges property
       connectionsIdx <- cbind(connectionsIdx, edges_property)
       colnames(connectionsIdx) <- c("source","target", "property")
