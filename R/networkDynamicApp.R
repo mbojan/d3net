@@ -57,7 +57,7 @@ networkDynamicApp <- function(data) {
                tags$head(includeCSS(system.file('www', 'tipsy.css', package = 'd3net'))),
                reactiveNetwork(outputId = "mainnet"),
                div(progressBar(),
-                   div(id = "player", class="span4 btn-group btn-group-justified"),
+                   div(id = "player", class="btn-group"),
                    div(id = "timeInfo", class="span3"),
                    div(id = "timeCount", class="span3"))
         )
@@ -189,6 +189,7 @@ networkDynamicApp <- function(data) {
       nodesActivity <- as.matrix(nodesActivity)
       connectionsIdx <- apply(connectionsIdx, 1:2, as.character)
       connectionsIdx <- as.matrix(connectionsIdx)
+
       v_attributes <- list()
       
       for (i in network::list.vertex.attributes(data))
@@ -204,21 +205,29 @@ networkDynamicApp <- function(data) {
       timeRangeMax <- range(network::get.network.attribute(data,'net.obs.period')$observations)[2]
       
       # d3 graph properties
-      if (is.null(input$charge)) charge <- chargeValue else charge <- input$charge
-      if (is.null(input$linkDistance)) linkDist <- linkDistanceValue else linkDist <- input$linkDistance
-      if (is.null(input$vertexSize[1])) vertexMin <- vertexSizeMinValue else vertexMin <- input$vertexSize[1]
-      if (is.null(input$vertexSize[2])) vertexMax <- vertexSizeMinValue*3 else vertexMax <- input$vertexSize[2]
-      d3properties <- matrix(c(charge,
-                               linkDist,
-                               vertexMin,
-                               vertexMax,
-                               input$linkStrength,
-                               input$colorScale,
-                               as.numeric(dir),
-                               as.numeric(timeRangeMin),
-                               as.numeric(timeRangeMax)), ncol = 9)
-      colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", "vertexSizeMax", 
-                                  "linkStrength", "color", "directed", "timeMin", "timeMax")
+      if (is.null(input$charge)) charge <- chargeValue 
+      else charge <- input$charge
+      if (is.null(input$linkDistance)) 
+        linkDist <- linkDistanceValue 
+      else linkDist <- input$linkDistance
+      if (is.null(input$vertexSize[1])) 
+        vertexMin <- vertexSizeMinValue 
+      else vertexMin <- input$vertexSize[1]
+      if (is.null(input$vertexSize[2])) 
+        vertexMax <- vertexSizeMinValue*3 
+      else vertexMax <- input$vertexSize[2]
+
+      d3properties <- list("charge" = charge,
+                           "linkDistance" = linkDist,
+                           "vertexSizeMin" = vertexMin,
+                           "vertexSizeMax" = vertexMax,
+                           "linkStrength" = input$linkStrength,
+                           "color" = as.numeric(input$colorScale),
+                           "directed" = as.numeric(dir),
+                           "timeMin" = as.numeric(timeRangeMin),
+                           "timeMax" = as.numeric(timeRangeMax)
+      )
+    
       type <- "networkDynamic"
       
       graphData <- list(vertices = nodes, # vertices

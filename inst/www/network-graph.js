@@ -8,6 +8,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
     },
     
     renderValue: function(el, data) {
+    	console.log(data)
       /**
       Used variables 
       */
@@ -22,7 +23,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var vertexColor = data.vertexColor;
       var graphType = data.graphType;
       var verticesActivity = data.verticesActivity;
-      var color = d3properties[0].color;
+      var color = d3properties.color;
       var width = 7/12* $(window).width();
       var height = 0.75 * $(window).height();
 
@@ -30,16 +31,16 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var colorScalePicker = d3.scale.category10().domain(d3.range(0,10));
       var colorScale = d3.scale.linear().range([colorScalePicker(color), minColor]);
 
-      var playButtonHtml = '<button type="button" class="btn btn-default" id="playButton">' + '<i class="icon-play"></i>' + '</button>'
-      var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + '<i class="icon-pause"></i>' + '</button>'
-      var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + '<i class="icon-repeat"></i>' + '</button>'
-      var zoomButtonHtml = '<button type="button" class="btn btn-default btn-lg" id="zoomButton">Zooming</button>'
+      var playButtonHtml = '<button type="button" class="btn btn-default" id="playButton">' + 'Play' + '</button>';
+      var pauseButtonHtml = '<button type="button" class="btn btn-default" id="pauseButton">' + 'Pause' + '</button>';
+      var replayButtonHtml = '<button type="button" class="btn btn-default" id="replayButton">' + 'Replay' + '</button>';
+      var zoomButtonHtml = '<button type="button" class="btn btn-default" id="zoomButton">Zooming</button>';
       $("#player").html(playButtonHtml + pauseButtonHtml + replayButtonHtml + zoomButtonHtml);
-      $("#slider").attr("min", d3properties[0].timeMin);
-      $("#slider").attr("max", d3properties[0].timeMax);
-      $("#slider").val(Number(d3properties[0].timeMin));
-      $("#timeCount").html('<b>Current</b> ' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax);
-      $("#timeInfo").html('<b>Time range</b> ' + d3properties[0].timeMin + ' - ' + d3properties[0].timeMax);
+      $("#slider").attr("min", d3properties.timeMin);
+      $("#slider").attr("max", d3properties.timeMax);
+      $("#slider").val(Number(d3properties.timeMin));
+      $("#timeCount").html('<b>Current</b> ' + d3properties.timeMin + ' / ' + d3properties.timeMax);
+      $("#timeInfo").html('<b>Time range</b> ' + d3properties.timeMin + ' - ' + d3properties.timeMax);
       $("#logo").removeAttr("style");
 
       var nodes = [],
@@ -131,14 +132,14 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var force = d3.layout.force()
           .nodes(nodes)
           .links(edges)
-          .charge(d3properties[0].charge)
-          .linkDistance(d3properties[0].linkDistance)
-          .linkStrength(d3properties[0].linkStrength)
+          .charge(d3properties.charge)
+          .linkDistance(d3properties.linkDistance)
+          .linkStrength(d3properties.linkStrength)
           .size([width, height])
           .on("tick", tick);
 
 
-      if (d3properties[0].directed == 1)
+      if (d3properties.directed == 1)
       {
         var markerSize = 7;
         svg.append("svg:defs").selectAll("marker")
@@ -158,19 +159,19 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var edge = background.append("svg:g").selectAll("path");
 
       var animationInterval;
-      var time = Number(d3properties[0].timeMin) + 1;
+      var time = Number(d3properties.timeMin) + 1;
 
       function runInterval(intervalSeconds) {
         animationInterval = setInterval(function(){
           $("#slider").val(time);
-          if (time > d3properties[0].timeMax)
+          if (time > d3properties.timeMax)
             { 
               $("#playButton").removeClass('active');
               option = undefined;
               clearInterval(animationInterval);
               return;
             }
-          $("#timeCount").html('<b>Current</b> ' + time + ' / ' + d3properties[0].timeMax);
+          $("#timeCount").html('<b>Current</b> ' + time + ' / ' + d3properties.timeMax);
           updateData(time);
           time++;
         }, intervalSeconds*1000);
@@ -206,16 +207,16 @@ var networkOutputBinding = new Shiny.OutputBinding();
         else
         {
           clearInterval(animationInterval);
-          time = Number(d3properties[0].timeMin) + 1;
+          time = Number(d3properties.timeMin) + 1;
           $("#playButton").removeClass('active');
           $("#pauseButton").removeClass('active');
-          $("#timeCount").html('<b>Current</b> ' + d3properties[0].timeMin + ' / ' + d3properties[0].timeMax);
-          $("#slider").val(d3properties[0].timeMin);
+          $("#timeCount").html('<b>Current</b> ' + d3properties.timeMin + ' / ' + d3properties.timeMax);
+          $("#slider").val(d3properties.timeMin);
         }
 
         if ($(this).attr("id") === "replayButton")
         {
-          cleanData(Number(d3properties[0].timeMin));
+          cleanData(Number(d3properties.timeMin));
         }
       }
 
@@ -278,7 +279,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         time = userTime + 1;
         // if the loop was on, continue
         if (option == 1) runInterval(currentInterval);
-        $("#timeCount").html('<b>Current</b> ' + userTime + ' / ' + d3properties[0].timeMax);
+        $("#timeCount").html('<b>Current</b> ' + userTime + ' / ' + d3properties.timeMax);
       })
 
       node.each( function(d, i){
@@ -306,8 +307,8 @@ var networkOutputBinding = new Shiny.OutputBinding();
                   10 + "," + 10 + " 0 0,1 " + 
                   d.source.x + "," + 
                   d.source.y;
-            var r = (radiusArray[d.target.index]) ? radiusArray[d.target.index] : d3properties[0].vertexSizeMin;
-            var r2 = (radiusArray[d.source.index]) ? radiusArray[d.source.index] : d3properties[0].vertexSizeMin;
+            var r = (radiusArray[d.target.index]) ? radiusArray[d.target.index] : d3properties.vertexSizeMin;
+            var r2 = (radiusArray[d.source.index]) ? radiusArray[d.source.index] : d3properties.vertexSizeMin;
             var dr = 0;
             var temp  = Math.sqrt(r * r * (d.source.y - d.target.y) * (d.source.y - d.target.y) / 
                 ((d.source.x - d.target.x)*(d.source.x - d.target.x) + (d.source.y - d.target.y)*(d.source.y - d.target.y)));
@@ -359,15 +360,18 @@ var networkOutputBinding = new Shiny.OutputBinding();
             .attr("class", "node")
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; })
-            .attr("r", d3properties[0].vertexSizeMax)
+            .attr("r", d3properties.vertexSizeMax)
             .style("fill", minColor)
             .style("stroke", "black")
           .transition()
             .duration(baseDuration)
             .ease("linear")
             .style("fill", function(d) { return d.color;})
-            .attr("r", function(d) { return (d.property && maxVertexProperty) ? 
-            Math.max(d3properties[0].vertexSizeMin, d3properties[0].vertexSizeMax*(d.property/maxVertexProperty)) : d3properties[0].vertexSizeMin; } );
+            .attr("r", function(d) { 
+            	return (d.property && maxVertexProperty) ? 
+	            	Math.max(d3properties.vertexSizeMin, d3properties.vertexSizeMax*(d.property/maxVertexProperty)) 
+	            	: d3properties.vertexSizeMin; 
+	           } );
 
         node.call(force.drag);
         
@@ -422,7 +426,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
             .style("stroke", "black")
             .style("stroke-width", 1);
 
-        if (d3properties[0].directed == 1) 
+        if (d3properties.directed == 1) 
         {
           svg.selectAll("path").attr("marker-end", "url(#end)")
         }
@@ -459,6 +463,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
           if(nodes[i].terminus == time - 1)
             nodes.splice(i,1);
         }
+      	console.log(nodes)
 
         // add new edges
         for (var i = 0; i < links.length; i++)
@@ -527,7 +532,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
         redraw();
       }
 
-      updateData(Number(d3properties[0].timeMin));
+      updateData(Number(d3properties.timeMin));
 
       /**
       Interval for indicating whether shiny is busy
