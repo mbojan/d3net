@@ -8,13 +8,12 @@ var networkOutputBinding = new Shiny.OutputBinding();
     },
     
     renderValue: function(el, data) {
-    	console.log(data)
       /**
       Used variables 
       */
       var maxVertexProperty = 0.0;
       var maxEdgeProperty = 0.0;
-      var links = jQuery.extend(true, [], data.links);
+      var links = formatLinks(jQuery.extend(true, [], data.links));
       var vertices = data.vertices;
       var d3properties = data.d3;
       var tooltipInfo = data.tooltipInfo;
@@ -22,7 +21,7 @@ var networkOutputBinding = new Shiny.OutputBinding();
       var vertexRadius = data.vertexRadius;
       var vertexColor = data.vertexColor;
       var graphType = data.graphType;
-      var verticesActivity = data.verticesActivity;
+      var verticesActivity = formatVerticesActivity(data.verticesActivity);
       var color = d3properties.color;
       var width = 7/12* $(window).width();
       var height = 0.75 * $(window).height();
@@ -74,9 +73,40 @@ var networkOutputBinding = new Shiny.OutputBinding();
           return parseInt(vertex); 
         else return acc}, 0) : 0;
 
+      
+      // formatting R data
+      function formatVerticesActivity (array) {
+      	var verticesActivity = [];
+      	// properties order: vertex.id onset terminus
+      	array.forEach(function(element) {
+      		verticesActivity.push({
+      			"vertex.id" : element[0],
+      			"onset" : element[1],
+      			"terminus" : element[2]
+      		});
+      	});
+      	return verticesActivity;
+      }
+
+      function formatLinks (array) {
+      	var links = [];
+      	// propeties order: onset terminus source target property
+      	array.forEach(function(element) {
+      		links.push({
+      			onset : element[0],
+      			terminus : element[1],
+      			source : element[2],
+      			target : element[3],
+      			property : element[4]
+      		});
+      	});
+      	return links;
+      }
+
       /**
         Zooming the graph
       */
+
       function zoomGraph() {
         if (currentTranslation != null && currentScale != null)
         {
@@ -463,7 +493,6 @@ var networkOutputBinding = new Shiny.OutputBinding();
           if(nodes[i].terminus == time - 1)
             nodes.splice(i,1);
         }
-      	console.log(nodes)
 
         // add new edges
         for (var i = 0; i < links.length; i++)

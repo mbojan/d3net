@@ -17,8 +17,6 @@ d3net.networkDynamic <- function(dataset, ...)
   networkDynamicApp(dataset, ...)
 }
 
-  
-
 
 networkDynamicApp <- function(data) {
   shinyApp(
@@ -187,9 +185,11 @@ networkDynamicApp <- function(data) {
       # format data for javascript
       nodesActivity <- apply(nodesActivity, 1:2, as.character)
       nodesActivity <- as.matrix(nodesActivity)
+      
       connectionsIdx <- apply(connectionsIdx, 1:2, as.character)
       connectionsIdx <- as.matrix(connectionsIdx)
 
+      # vertices attributes list
       v_attributes <- list()
       
       for (i in network::list.vertex.attributes(data))
@@ -199,8 +199,10 @@ networkDynamicApp <- function(data) {
         v_attributes[[paste(i)]][v_attributes[[paste(i)]] == -Inf] <- '-Inf'
       }
       
-      # full edges data
+      # is network directed
       dir = network::is.directed(data)
+      
+      # time ranges
       timeRangeMin <- range(network::get.network.attribute(data,'net.obs.period')$observations)[1]
       timeRangeMax <- range(network::get.network.attribute(data,'net.obs.period')$observations)[2]
       
@@ -229,7 +231,6 @@ networkDynamicApp <- function(data) {
       )
     
       type <- "networkDynamic"
-      
       graphData <- list(vertices = nodes, # vertices
                         verticesActivity = nodesActivity, # vertices time stamps
                         links = connectionsIdx, # edges
@@ -239,7 +240,8 @@ networkDynamicApp <- function(data) {
                         vertexColor = input$vertexColor, # attribute that vertex color should reflect
                         edgeThickness = input$edge, # attribute that edge thickness should reflect
                         verticesAttributes = v_attributes, # vertex attributes data
-                        d3 = d3properties)
+                        d3 = d3properties
+                        )
       
       graphData
     })
