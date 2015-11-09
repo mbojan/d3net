@@ -75,5 +75,5 @@ d3net(harry_potter_support)
 ```
 
 ## See also
-* [D3.js library](www.d3js.org)
-* [Shiny framework](www.shiny.rstudio.com)
+* [D3.js library](https://www.d3js.org)
+* [Shiny framework](https://www.shiny.rstudio.com)
