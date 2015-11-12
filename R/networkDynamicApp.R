@@ -17,8 +17,6 @@ d3net.networkDynamic <- function(dataset, ...)
   networkDynamicApp(dataset, ...)
 }
 
-  
-
 
 networkDynamicApp <- function(data) {
   shinyApp(
@@ -57,7 +55,7 @@ networkDynamicApp <- function(data) {
                tags$head(includeCSS(system.file('www', 'tipsy.css', package = 'd3net'))),
                reactiveNetwork(outputId = "mainnet"),
                div(progressBar(),
-                   div(id = "player", class="span4 btn-group btn-group-justified"),
+                   div(id = "player", class="btn-group"),
                    div(id = "timeInfo", class="span3"),
                    div(id = "timeCount", class="span3"))
         )
@@ -187,8 +185,11 @@ networkDynamicApp <- function(data) {
       # format data for javascript
       nodesActivity <- apply(nodesActivity, 1:2, as.character)
       nodesActivity <- as.matrix(nodesActivity)
+      
       connectionsIdx <- apply(connectionsIdx, 1:2, as.character)
       connectionsIdx <- as.matrix(connectionsIdx)
+
+      # vertices attributes list
       v_attributes <- list()
       
       for (i in network::list.vertex.attributes(data))
@@ -198,29 +199,38 @@ networkDynamicApp <- function(data) {
         v_attributes[[paste(i)]][v_attributes[[paste(i)]] == -Inf] <- '-Inf'
       }
       
-      # full edges data
+      # is network directed
       dir = network::is.directed(data)
+      
+      # time ranges
       timeRangeMin <- range(network::get.network.attribute(data,'net.obs.period')$observations)[1]
       timeRangeMax <- range(network::get.network.attribute(data,'net.obs.period')$observations)[2]
       
       # d3 graph properties
-      if (is.null(input$charge)) charge <- chargeValue else charge <- input$charge
-      if (is.null(input$linkDistance)) linkDist <- linkDistanceValue else linkDist <- input$linkDistance
-      if (is.null(input$vertexSize[1])) vertexMin <- vertexSizeMinValue else vertexMin <- input$vertexSize[1]
-      if (is.null(input$vertexSize[2])) vertexMax <- vertexSizeMinValue*3 else vertexMax <- input$vertexSize[2]
-      d3properties <- matrix(c(charge,
-                               linkDist,
-                               vertexMin,
-                               vertexMax,
-                               input$linkStrength,
-                               input$colorScale,
-                               as.numeric(dir),
-                               as.numeric(timeRangeMin),
-                               as.numeric(timeRangeMax)), ncol = 9)
-      colnames(d3properties) <- c("charge", "linkDistance", "vertexSizeMin", "vertexSizeMax", 
-                                  "linkStrength", "color", "directed", "timeMin", "timeMax")
+      if (is.null(input$charge)) charge <- chargeValue 
+      else charge <- input$charge
+      if (is.null(input$linkDistance)) 
+        linkDist <- linkDistanceValue 
+      else linkDist <- input$linkDistance
+      if (is.null(input$vertexSize[1])) 
+        vertexMin <- vertexSizeMinValue 
+      else vertexMin <- input$vertexSize[1]
+      if (is.null(input$vertexSize[2])) 
+        vertexMax <- vertexSizeMinValue*3 
+      else vertexMax <- input$vertexSize[2]
+
+      d3properties <- list("charge" = charge,
+                           "linkDistance" = linkDist,
+                           "vertexSizeMin" = vertexMin,
+                           "vertexSizeMax" = vertexMax,
+                           "linkStrength" = input$linkStrength,
+                           "color" = as.numeric(input$colorScale),
+                           "directed" = as.numeric(dir),
+                           "timeMin" = as.numeric(timeRangeMin),
+                           "timeMax" = as.numeric(timeRangeMax)
+      )
+    
       type <- "networkDynamic"
-      
       graphData <- list(vertices = nodes, # vertices
                         verticesActivity = nodesActivity, # vertices time stamps
                         links = connectionsIdx, # edges
@@ -230,7 +240,8 @@ networkDynamicApp <- function(data) {
                         vertexColor = input$vertexColor, # attribute that vertex color should reflect
                         edgeThickness = input$edge, # attribute that edge thickness should reflect
                         verticesAttributes = v_attributes, # vertex attributes data
-                        d3 = d3properties)
+                        d3 = d3properties
+                        )
       
       graphData
     })
