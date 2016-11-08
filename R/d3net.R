@@ -91,5 +91,40 @@ d3net.default <- function(dataset, ...)
 
 
 
+#' @rdname d3net
+#' @method d3net igraph
+#' @export
+d3net.igraph <- function(dataset, ...)
+{
+  igraphApp(dataset)
+}
+
+
+
+
+#' @method d3net network
+#'
+#' @details
+#' If \code{dataset} is of class "network", it is converted to "igraph" object
+#' using \code{\link[intergraph]{asIgraph}}.
+#'
+#' @rdname d3net
+#' @export
+d3net.network <- function(dataset, ...)
+{
+  dataset <- intergraph::asIgraph(dataset)
+  igraphApp(dataset)
+}
+
+#' @method d3net list
+#' 
+#' @details
+#' \code{d3net} can be called on lists of networks.
+#' 
+#' @rdname d3net
+#' @export
+d3net.list <- function(dataset, ...) {
+  
+}
 
 
