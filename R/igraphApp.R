@@ -58,6 +58,7 @@ igraphApp <- function(data) {
           )
         ),
         
+        # scripts and network picture
         column(
           8,
           tags$head(includeScript(system.file('www', 'igraph-graph.js', package = 'd3net'))),
@@ -70,21 +71,40 @@ igraphApp <- function(data) {
         )
       )
     ), 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     server = function(input, output, session) {
-      isolate({     
+      
+      isolate({
+        
+        # Base color selector
         updateSelectizeInput(
-          session, 'colorScale', server = FALSE,
-          options = list(create = TRUE, render = I(sprintf(
+          session, 'colorScale', 
+          server = FALSE,
+          options = list(
+            create = TRUE, 
+            render = I(sprintf(
             "{
-          option: function(item, escape) {
-          return '<div><span style=\"color: ' 
-          + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
-          },
-          item: function(item, escape) {
-          return '<div><span style=\"color: ' 
-          + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
-          }
-    }"
+                  option: function(item, escape) {
+                  return '<div><span style=\"color: ' 
+                  + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
+                  },
+                  item: function(item, escape) {
+                  return '<div><span style=\"color: ' 
+                  + escape(item.label) + '\">' + '&#11044 </span>' + escape(item.label) + '</div>';
+                  }
+            }"
           )))
         )
         
