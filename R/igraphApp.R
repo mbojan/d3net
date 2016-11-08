@@ -18,28 +18,28 @@ igraphApp <- function(data) {
           tabsetPanel(
             
             tabPanel(
-              "D3.js properties",
+              "Layout",
               column(
                 12,
-                htmlOutput("layoutProperties"),
-                sliderInput("linkStrength", "Link strength:", 
-                            min=0, max=1, value=0.5),
-                selectizeInput("colorScale", "Choose color:",
-                               choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
-                                           "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
-                                           "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
-                                           "#17becf" = 9), selected = 0)
-              )
-            ),
-            
-            tabPanel(
-              "R properties",
-              column(
-                12, 
                 selectInput("outputFormat", 
                             label = "Select output format", 
                             choices = list("Interactive d3.js" = 1), 
                             selected = 1),
+                htmlOutput("layoutProperties"),
+                sliderInput("linkStrength", "Link strength:", 
+                            min=0, max=1, value=0.5)
+              )
+            ),
+            
+            tabPanel(
+              "Aesthetics",
+              column(
+                12, 
+                selectizeInput("colorScale", "Choose color:",
+                               choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
+                                           "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
+                                           "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
+                                           "#17becf" = 9), selected = 0),
                 htmlOutput("edge"),
                 htmlOutput("vertexColor"),
                 htmlOutput("vertexRadius"),
@@ -47,12 +47,13 @@ igraphApp <- function(data) {
               )
             ),
             
-            tabPanel("Info",
-                     column(
-                       12, 
-                       column(6, htmlOutput("footer")),
-                       column(6, imageOutput("logo"))
-                     )
+            tabPanel(
+              "Info",
+              column(
+                12, 
+                column(6, htmlOutput("footer")),
+                column(6, imageOutput("logo"))
+              )
             )
           )
         ),
