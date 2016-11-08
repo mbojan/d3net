@@ -35,7 +35,7 @@ igraphApp <- function(data) {
               "Aesthetics",
               column(
                 12, 
-                selectizeInput("colorScale", "Choose color:",
+                selectizeInput("colorScale", "Vertex base color:",
                                choices = c("#1f77b4" = 0, "#ff7f0e" = 1, "#2ca02c" = 2, 
                                            "#d62728" = 3, "#9467bd" = 4, "#8c564b" = 5, 
                                            "#e377c2" = 6, "#7f7f7f" = 7, "#bcbd22" = 8, 
@@ -133,7 +133,7 @@ igraphApp <- function(data) {
           else
             l <- c("None" = "none","Betweenness" = "betweenness")
           selectInput("edge",
-                      label = "Edges reflect",
+                      label = "Edges width",
                       choices =  l)
         })
         
@@ -148,14 +148,14 @@ igraphApp <- function(data) {
         
         output$vertexColor <- renderUI({
           selectInput("vertexColor", 
-                      label = "Vertices color reflect", 
+                      label = "Vertex color", 
                       choices = c("None", characterChoices),
                       selected = "None")
         })
         
         output$vertexRadius <- renderUI({
           selectInput("vertexRadius", 
-                      label = "Vertices radius reflect", 
+                      label = "Vertex size", 
                       choices = c("None", "Degree", "Betweenness", "Closeness", numericChoices),
                       selected = "None")
         })
