@@ -1,16 +1,9 @@
-#============================================================================ 
-# Here we describe all features which are generic irrespective of the method
-# used (class of `dataset`)
-#============================================================================ 
-#
 #' Launching d3net Shiny apps
 #' 
 #' Launch a Shiny application providing an interactive visualisation of static
 #' or dynamic network data.
 #'
-#' @param dataset R object containing (dynamic) network data. See Usage and Details
-#' for description of available methods.
-#'
+#' @param dataset R object providing data, see Details for available methods#'
 #' @param ... other arguments passed to/from other methods
 #'
 #' @details
@@ -91,8 +84,9 @@ d3net.default <- function(dataset, ...)
 
 
 
-#' @rdname d3net
 #' @method d3net igraph
+#' 
+#' @rdname d3net
 #' @export
 d3net.igraph <- function(dataset, ...)
 {
@@ -115,16 +109,3 @@ d3net.network <- function(dataset, ...)
   dataset <- intergraph::asIgraph(dataset)
   igraphApp(dataset)
 }
-
-#' @method d3net list
-#' 
-#' @details
-#' \code{d3net} can be called on lists of networks.
-#' 
-#' @rdname d3net
-#' @export
-d3net.list <- function(dataset, ...) {
-  
-}
-
-
