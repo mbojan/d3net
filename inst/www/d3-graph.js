@@ -1,21 +1,35 @@
 (function (window) {
 	'use strict';
 
-	var d3graph = { name: "graph with force layout based on d3.js" };
+	var d3graph = { 
+		name: "graph with force layout based on d3.js",
+		defaults = {
+			charge: 200,
+			linkDistance: 50,
+			linkStrength: 0.5,
+			width: 400,
+			height: 400,
+			markerSize: 3
+		}
+	};
 
 	d3graph.generate = function(el, properties, nodes, edges, verticesAttributes, tooltipInfo) {
-		var markerSize = properties.markerSize || 3;
+		properties = {
+			...this.defaults,
+			...properties
+		};
+		var markerSize = properties.markerSize;
 		var currentTranslation = null;
-	  	var currentScale = null;
-	  	var zoom;
+	  var currentScale = null;
+	  var zoom;
 
 		var force = d3.layout.force()
 			.nodes(nodes)
 			.links(edges)
-			.charge(properties.charge || 200)
-			.linkDistance(properties.linkDistance || 50)
-			.linkStrength(properties.linkStrength || 0.5)
-			.size([properties.width || 400 , properties.height || 400])
+			.charge(properties.charge)
+			.linkDistance(properties.linkDistance)
+			.linkStrength(properties.linkStrength)
+			.size([properties.width, properties.height])
 			.start();
 
 		var svg = d3.select(el).select("svg");
@@ -24,22 +38,22 @@
 		$(el).html("");
 	  
 		svg = d3.select(el).append("svg");
-
+		
 		/**
 		Add svg properties to become responsive (adjusting width and height)
 		*/
 		svg.attr("id", "graph")
 			.attr("pointer-events", "all")
-			.attr("width", properties.width || 400)
-			.attr("height", properties.height || 400)
-			.attr("viewBox", "0, 0, " + properties.width || 400 + ", " + properties.height || 400)
+			.attr("width", properties.width)
+			.attr("height", properties.height)
+			.attr("viewBox", "0, 0, " + properties.width + ", " + properties.height)
 			.attr("preserveAspectRatio", "xMidYMid meet");
 
 		var background = svg.append('svg:g');
 
 		background.append('svg:rect')
-			.attr('width', properties.width || 400)
-			.attr('height', properties.height || 400)
+			.attr('width', properties.width)
+			.attr('height', properties.height)
 			.attr('fill', 'white');
 
 		var graph = $("#graph");
