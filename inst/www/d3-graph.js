@@ -3,14 +3,15 @@
 
 	var d3graph = { 
 		name: "graph with force layout based on d3.js",
-		defaults = {
-			charge: 200,
-			linkDistance: 50,
-			linkStrength: 0.5,
-			width: 400,
-			height: 400,
-			markerSize: 3
-		}
+	};
+
+	d3graph.defaults = {
+		charge: 200,
+		linkDistance: 50,
+		linkStrength: 0.5,
+		width: 400,
+		height: 400,
+		markerSize: 3
 	};
 
 	d3graph.generate = function(el, properties, nodes, edges, verticesAttributes, tooltipInfo) {
